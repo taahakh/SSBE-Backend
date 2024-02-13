@@ -13,4 +13,4 @@ class ServiceManager:
         [s.extract() for s in soup(['style', 'script', 'link', 'footer', '[document]', 'head', 'title'])]
         visible_text = soup.getText()
         print(visible_text)
-        return json.dumps({"data": "Done"})
+        return json.dumps({"data": visible_text})
