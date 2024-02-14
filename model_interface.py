@@ -9,3 +9,7 @@ class ModelInterface(ABC):
     @abstractmethod
     def summarise(self, text):
         pass
+
+    @abstractmethod
+    def unload_model(self):
+        pass
