@@ -1,0 +1,22 @@
+[
+     {
+        "model-id" : 0,
+        "model-name" : "name",
+        "text-type" : "text",
+        "summary-type" : "quantity",
+        "summary-length" : {
+            "min" : 10,
+            "max" : 100
+        }
+    },
+    {
+        "model-id" : 1,
+        "model-name" : "name",
+        "text-type" : "text",
+        "summary-type" : "quantity",
+        "summary-length" : {
+            "min" : 10,
+            "max" : 100
+        }
+    }
+]

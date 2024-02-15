@@ -30,7 +30,7 @@ class ServiceManagerResource(Resource):
             return result, 200
 
         except Exception as e:
-            error_message = {"status": "error", "message": str('OH NO: ', e)}
+            error_message = {"status": "error", "message": str('OH NO: ' + str(e))}
             return error_message, 400
 
 class HelloWorld(Resource):

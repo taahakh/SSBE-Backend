@@ -1,17 +1,6 @@
-# # Load model directly
-# from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import models.bartlargecnn
+# , models.bartxiv, models.t5medical
 
-# tokenizer = AutoTokenizer.from_pretrained("hardikJ11/bart-base-finetuned-cnn-news")
-# model = AutoModelForSeq2SeqLM.from_pretrained("hardikJ11/bart-base-finetuned-cnn-news")
-
-
-
-# Load model directly
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-import models.bartxiv, models.bartlargecnn
-
-tokenizer = AutoTokenizer.from_pretrained("kworts/BARTxiv")
-model = AutoModelForSeq2SeqLM.from_pretrained("kworts/BARTxiv")
 
 # m = models.bartxiv.BartXIV()
 m = models.bartlargecnn.BartLargeCNN()
@@ -19,7 +8,11 @@ m = models.bartlargecnn.BartLargeCNN()
 
 def summarise(text):
     m.load_model()
-    return m.summarise(text)
+    state, output = m.summarise(text);
+    print('STATE: ' + str(state))
+    if state:
+        return output
+    return "FAILED"
 
 # from transformers import pipeline
 
