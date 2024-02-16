@@ -3,6 +3,11 @@ from other import summarise
 from bs4 import BeautifulSoup
 
 class ServiceManager:
+
+    def get_sum_customisation(self, location):
+        with open(location, 'r') as file:
+            return json.load(file)
+
     def start_summarisation(self, data):
         return summarise(data["text"])
 

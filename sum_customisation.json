@@ -1,9 +1,9 @@
 [
      {
         "model-id" : 0,
-        "model-name" : "name",
-        "text-type" : "text",
-        "summary-type" : "quantity",
+        "model-name" : "abc",
+        "text-type" : ["text1", "text2"],
+        "summary-type" : "ex",
         "summary-length" : {
             "min" : 10,
             "max" : 100
@@ -11,9 +11,9 @@
     },
     {
         "model-id" : 1,
-        "model-name" : "name",
-        "text-type" : "text",
-        "summary-type" : "quantity",
+        "model-name" : "xyz",
+        "text-type" : ["text1"],
+        "summary-type" : "ab",
         "summary-length" : {
             "min" : 10,
             "max" : 100
