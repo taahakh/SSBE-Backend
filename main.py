@@ -26,7 +26,10 @@ class ServiceManagerResource(Resource):
 
             result = {"status" : "success"}
             if action == 'summarise':
-                result['data'] = sm.start_summarisation(json_data)
+                print("Summarising")
+                print(json_data['text'])
+                print(json_data['customisation'])
+                # result['data'] = sm.start_summarisation(json_data)
             elif action == "scrape":
                 result['data'] = sm.start_scraping(json_data)
             

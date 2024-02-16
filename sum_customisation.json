@@ -15,8 +15,29 @@
         "text-type" : ["text1"],
         "summary-type" : "ab",
         "summary-length" : {
-            "min" : 10,
-            "max" : 100
+            "min" : 20,
+            "max" : 200
+        }
+    },
+    {
+        "model-id" : 3,
+        "model-name" : "helloworld",
+        "text-type" : ["text2"],
+        "summary-type" : "ab",
+        "summary-length" : {
+            "min" : 30,
+            "max" : 300
+        }
+    },
+    {
+        "model-id" : 4,
+        "model-name" : "ok",
+        "text-type" : ["text1"],
+        "summary-type" : "ab",
+        "summary-length" : {
+            "min" : 40,
+            "max" : 400
         }
     }
+    
 ]

@@ -6,5 +6,6 @@
 		{
 			"path": "../SSBE-Extension"
 		}
-	]
+	],
+	"settings": {}
 }
