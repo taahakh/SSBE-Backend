@@ -1,4 +1,16 @@
+from enum import Enum
 from abc import ABC, abstractmethod
+
+class SummaryType(Enum):
+    ABSTRACTIVE = "Abstractive"
+    EXTRACTIVE = "Extractive"
+
+class TextType(Enum):
+    GENERAL = "General"
+    NEWS = "News"
+    FINANCIAL = "News"
+    MEDICAL = "Medical"
+    SCIENTIFIC = "Scientific"
 
 class ModelInterface(ABC):
 
@@ -12,17 +24,49 @@ class ModelInterface(ABC):
                 return False, None
         return wrapper
 
+    @property
     @abstractmethod
-    def load_model(self):
+    def minimum_summary_length(self) -> int:
+        pass
+
+    @property
+    @abstractmethod
+    def maximum_summary_length(self) -> int:
+        pass
+
+    # Abstractive (ab) / Extractive (ex)
+    @property
+    @abstractmethod
+    def summary_type(self) -> SummaryType:
+        return
+    
+    @property
+    @abstractmethod
+    def text_type(self) -> list[TextType]:
+        return
+
+    @property
+    @abstractmethod
+    def model_name(self) -> str:
+        pass
+
+    # Little description about the model
+    @property
+    @abstractmethod
+    def description(self) -> str:
+        pass
+
+    @abstractmethod
+    def load_model(self) -> None:
         pass
 
     @abstractmethod
     @catch_exception
-    def summarise(self, text):
+    def summarise(self, text) -> str:
         pass
 
     @abstractmethod
-    def unload_model(self):
+    def unload_model(self) -> None:
         pass
 
 

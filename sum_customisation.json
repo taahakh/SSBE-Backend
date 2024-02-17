@@ -1,9 +1,9 @@
 [
      {
-        "model-id" : 0,
         "model-name" : "abc",
         "text-type" : ["text1", "text2"],
         "summary-type" : "ex",
+        "description": "",
         "summary-length" : {
             "min" : 10,
             "max" : 100

@@ -1,18 +1,99 @@
-import models.bartlargecnn
+import importlib
+import json
+#Uncomment
+# import models.bartlargecnn
+
 # , models.bartxiv, models.t5medical
 
 
 # m = models.bartxiv.BartXIV()
-m = models.bartlargecnn.BartLargeCNN()
+
+# Uncomment
+# m = models.bartlargecnn.BartLargeCNN()
+
+# Uncomment
+# def summarise(text):
+#     m.load_model()
+#     state, output = m.summarise(text);
+#     print('STATE: ' + str(state))
+#     if state:
+#         return output
+#     return "FAILED"
+
+class SummarisationManager:
+
+    def __init__(self):
+        self.model_list = {}
+        self.curr_loaded_model = None;
+        self.load_resources()
+        self.create_model_descriptors()
+
+    def create_model_descriptors(self):
+        
+        descriptor_list = []
+
+        for _, value in self.model_list.items():
+            if value.summary_type.value == "Abstractive": 
+                st = "ab" 
+            else :
+                st = "ex"
+
+            model_descriptor = {
+                "model-name" : value.model_name,
+                "text-type" : [x.value for x in value.text_type],
+                "summary-type" : st,
+                "description" : value.description,
+                "summary-length" : {
+                    "min" : value.minimum_summary_length, 
+                    "max" : value.maximum_summary_length
+                }
+            }
+
+            print(value.summary_type.value)
+        
+            descriptor_list.append(model_descriptor)
+        
+        with open('md.json', 'w') as file:
+            json.dump(descriptor_list, file, indent=2)
 
 
-def summarise(text):
-    m.load_model()
-    state, output = m.summarise(text);
-    print('STATE: ' + str(state))
-    if state:
-        return output
-    return "FAILED"
+    def load_resources(self):
+
+        with open('model_list.txt', 'r') as file:
+            model_list = file.read().splitlines()
+            print(model_list)
+
+        for model in model_list:
+            model = importlib.import_module("models."+model)
+            self.model_list[model.Model().model_name] = model.Model()
+        
+        print(self.model_list)
+
+    def model_loader(self, model):
+        if self.curr_loaded_model is not None:
+            self.curr_loaded_model.unload_model()
+
+        m = self.model_list[model]
+        m.load_model()
+        self.curr_loaded_model = m
+        return m
+        
+    def summarise(self, text, model_name):
+        # model = self.model_list[model_name]
+        # model.load_model()
+        model = self.model_loader(model_name)
+        state, output = model.summarise(text)
+        print('STATE: ' + str(state))
+        if state:
+            return output
+        return "FAILED"   
+        
+
+
+# sm = SummarisationManager();
+# sm.load_resources();
+
+
 
 # from transformers import pipeline
 

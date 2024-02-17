@@ -10,7 +10,7 @@ sm = svm.ServiceManager()
 class JsonFileResource(Resource):
     def get(self, filename=None):
         if filename == "sum_customisation":
-            sum_customisation = sm.get_sum_customisation('sum_customisation.json')
+            sum_customisation = sm.get_sum_customisation('md.json')
             return {'data': sum_customisation}
         return {'json': 'this is get mate'}
 
@@ -27,9 +27,9 @@ class ServiceManagerResource(Resource):
             result = {"status" : "success"}
             if action == 'summarise':
                 print("Summarising")
-                print(json_data['text'])
+                print(json_data['text'][0:20])
                 print(json_data['customisation'])
-                # result['data'] = sm.start_summarisation(json_data)
+                result['data'] = sm.start_summarisation(json_data)
             elif action == "scrape":
                 result['data'] = sm.start_scraping(json_data)
             
