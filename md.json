@@ -36,5 +36,33 @@
       "min": 40,
       "max": 400
     }
+  },
+  {
+    "model-name": "DUMMY",
+    "text-type": [
+      "General",
+      "News",
+      "Scientific"
+    ],
+    "summary-type": "ex",
+    "description": "Good for all types of text",
+    "summary-length": {
+      "min": 60,
+      "max": 500
+    }
+  },
+  {
+    "model-name": "DUMMY2",
+    "text-type": [
+      "General",
+      "News",
+      "Scientific"
+    ],
+    "summary-type": "ab",
+    "description": "Good for all types of text",
+    "summary-length": {
+      "min": 60,
+      "max": 500
+    }
   }
 ]
