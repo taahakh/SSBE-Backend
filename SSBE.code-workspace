@@ -7,5 +7,7 @@
 			"path": "../SSBE-Extension"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "SSBE-Extension"
+	}
 }
