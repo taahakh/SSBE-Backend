@@ -51,5 +51,21 @@ api.add_resource(JsonFileResource, '/jsonfile', '/jsonfile/<filename>')
 def index():
     return render_template('index.html')
 
+@app.route('/home/a')
+def index_a():
+    return render_template('index.html')
+
+@app.route('/home/c/b')
+def index_c_b():
+    return render_template('index.html')
+
+@app.route('/home/a/b')
+def index_a_b():
+    return render_template('index.html')
+
+@app.route('/other/a')
+def other_a():
+    return render_template('index.html')
+
 if __name__ == '__main__':
     app.run(debug=True)
