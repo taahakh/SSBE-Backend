@@ -19,9 +19,10 @@ class ServiceManager:
         # print(self.summ.summarise(self.placeholder_text, 'BartXIV'))
         # print(self.summ.summarise(self.placeholder_text, 'BartLargeCNN'))
         # return 'yes'
-        # return summarise(data["text"])
+        return data["text"]
         # print(data)
-        return self.summ.summarise(data["text"], data['customisation']['model'])
+        # DISABLED ACTUAL SUMMARISATION
+        # return self.summ.summarise(data["text"], data['customisation']['model'])
         # self.summ.summarise(self.placeholder_text, 'T5MedicalSummarisation')
 
     
