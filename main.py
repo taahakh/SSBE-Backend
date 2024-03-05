@@ -106,6 +106,7 @@ class ServiceManagerResource(Resource):
                 print("Summarising")
                 print(json_data['text'][0:20])
                 print(json_data['customisation'])
+                print(json_data['extractedType'])
                 result['data'] = sm.start_summarisation(json_data)
             elif action == "scrape":
                 result['data'] = sm.start_scraping(json_data)

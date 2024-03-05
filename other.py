@@ -70,10 +70,12 @@ class SummarisationManager:
         print(self.model_list)
 
     def model_loader(self, model):
+        print(model)
         if self.curr_loaded_model is not None:
             self.curr_loaded_model.unload_model()
-
+        print("ok")
         m = self.model_list[model]
+        print(m)
         m.load_model()
         self.curr_loaded_model = m
         return m
@@ -81,7 +83,11 @@ class SummarisationManager:
     def summarise(self, text, model_name):
         # model = self.model_list[model_name]
         # model.load_model()
+        print("Loading Model...")
+        # print
         model = self.model_loader(model_name)
+        print("Model Loaded")
+        print("Summarising...")
         state, output = model.summarise(text)
         print('STATE: ' + str(state))
         if state:
@@ -91,6 +97,8 @@ class SummarisationManager:
 
 
 # sm = SummarisationManager();
+# sm.model_loader('BartLargeCNN')
+
 # sm.load_resources();
 
 

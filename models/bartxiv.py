@@ -1,5 +1,6 @@
 from model_interface import ModelInterface, SummaryType, TextType
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from chunker import ChunkedSummarizer
 
 # class BartXIV(ModelInterface):
 class Model(ModelInterface):
@@ -50,7 +51,9 @@ class Model(ModelInterface):
     @ModelInterface.catch_exception
     def summarise(self, text) -> str:
         print("(BartXIV) Summarising...")
-        inputs = self.tokenizer(text, return_tensors="pt")
-        outputs = self.model.generate(inputs["input_ids"], num_beams=4, min_length=100, max_length=500)
-        return self.tokenizer.batch_decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
+        chunked_summarizer = ChunkedSummarizer(t=self.tokenizer, m=self.model, max_chunk_length=1024, max_summary_length=500)
+        return True, chunked_summarizer.summarize_chunked_text(text)
+        # inputs = self.tokenizer(text, return_tensors="pt")
+        # outputs = self.model.generate(inputs["input_ids"], num_beams=4, min_length=100, max_length=500)
+        # return self.tokenizer.batch_decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
         
