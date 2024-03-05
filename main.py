@@ -2,12 +2,14 @@ from flask import Flask, request, render_template, jsonify
 from flask_restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPTokenAuth
+from flask_cors import CORS
 from database_models import db, User
 import uuid
 # from other import summarise
 import servicemanager as svm
 
 app = Flask(__name__)
+CORS(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -130,7 +132,7 @@ def index():
 
 @app.route('/home/a')
 def index_a():
-    return render_template('index.html')
+    return render_template('test.html')
 
 @app.route('/home/c/b')
 def index_c_b():
