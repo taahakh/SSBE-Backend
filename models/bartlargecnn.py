@@ -7,7 +7,6 @@ from chunker import ChunkedSummarizer
 class Model(ModelInterface):
 
     def __init__(self):
-        # self.pipe = None
         self.tokenizer = None
         self.model = None
 
@@ -17,7 +16,7 @@ class Model(ModelInterface):
 
     @property
     def maximum_summary_length(self) -> int:
-        return 500
+        return 512
 
     # Abstractive (ab) / Extractive (ex)
     @property
@@ -26,7 +25,15 @@ class Model(ModelInterface):
     
     @property
     def text_type(self) -> list[TextType]:
-        return [TextType.GENERAL, TextType.NEWS]
+        return [TextType.GENERAL, TextType.NEWS, TextType.FINANCIAL]
+    
+    @property
+    def defined_tokenizer(self):
+        return self.tokenizer
+    
+    @property
+    def defined_model(self):
+        return self.model
 
     # Little description about the model
     @property
@@ -53,13 +60,13 @@ class Model(ModelInterface):
         print("(BartLargeCNN) Model unloaded")
 
     @ModelInterface.catch_exception
-    def summarise(self, text):
+    def summarise(self, text, summary_length):
         print("(BartLargeCNN) Summarising...")
-        chunked_summarizer = ChunkedSummarizer(t=self.tokenizer, m=self.model, max_chunk_length=512, max_summary_length=500)
-        return True, chunked_summarizer.summarize_chunked_text(text)
-
-        # inputs = self.tokenizer(text, return_tensors="pt")
-        # outputs = self.model.generate(inputs["input_ids"], num_beams=4, min_length=100, max_length=500)
-        # return self.tokenizer.batch_decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
-        
-        # return self.pipe(text, min_length=100, max_length=500)[0]['summary_text']
+        print(summary_length)
+        length = self.maximum_summary_length
+        print(summary_length, length)
+        if summary_length != "":
+            length = int(summary_length)
+        print(summary_length, length)
+        chunked_summarizer = ChunkedSummarizer(t=self.tokenizer, m=self.model, max_chunk_length=512, max_summary_length=length)
+        return chunked_summarizer.summarize_chunked_text(text)

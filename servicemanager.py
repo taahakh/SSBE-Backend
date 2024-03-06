@@ -1,4 +1,6 @@
 import json
+import multiprocessing
+# from concurrent.futures import ProcessPoolExecutor
 # from other import summarise , SummarisationManager
 from other import SummarisationManager
 from bs4 import BeautifulSoup
@@ -12,6 +14,8 @@ class ServiceManager:
 
     def __init__(self):
         self.summ = SummarisationManager()
+        # self.executor = ProcessPoolExecutor()
+        # self.futures = []
         # self.placeholder_text = """
         # Ancient Egyptian literature was written with the Egyptian language from ancient Egypt's pharaonic period until the end of Roman domination. It represents the oldest corpus of Egyptian literature. Along with Sumerian literature, it is considered the world's earliest literature.[1]
         # """
@@ -22,11 +26,12 @@ class ServiceManager:
     
     def fix_escape_chars(self, text):
         return text.replace('\\n', '').replace('\n', '').replace('\\t', '').replace('\t', '').replace('\\"', '"')
-
+    
     def start_summarisation(self, data):
         content = data["text"]
         print('extractedType: ', data['extractedType'])
         # print('Text: ', txt)
+        print(data['customisation']['summary-length'])
 
         if (data['extractedType'] == 'html'):
             print('HTML')
@@ -41,29 +46,23 @@ class ServiceManager:
 
         print("\n-------------------\n")
       
+        l = data['customisation']['summary-length']
+
         model = Summarizer()
-        result = model(content, ratio=0.8)
+        result = model(content, ratio=0.5)
         full = ''.join(result)
         print('Text reducer: ', full)
-        # # return full
-        # print(data)
 
-        # print('Text: ', ok)
+        content = self.summ.summarise(full, data['customisation']['model'], "")
 
+        if l != "":
+            l = float(l)
+            model = Summarizer()
+            result = model(content, ratio=l)
+            content = ''.join(result)
+            print('Text reducer: ', content)
 
-        # paragraphs = justext.justext(content, justext.get_stoplist("English"))
-        # for paragraph in paragraphs:
-        #     if not paragraph.is_boilerplate:
-        #         print(paragraph.text)
-
-        # return data
-        # return txt
-        # return full
-        return self.summ.summarise(full, data['customisation']['model'])
-        # return self.summ.summarise(txt, data['customisation']['model'])
-        # return self.summ.summarise(data["text"], data['customisation']['model'])
-        # self.summ.summarise(self.placeholder_text, 'T5MedicalSummarisation')
-        # return self.summ.summarise(full, data['customisation']['model'])
+        return content
 
     
     def start_scraping(self, data):

@@ -49,10 +49,13 @@ class Model(ModelInterface):
         print("(BartXIV) Model unloaded")
     
     @ModelInterface.catch_exception
-    def summarise(self, text) -> str:
+    def summarise(self, text, summary_length) -> str:
         print("(BartXIV) Summarising...")
-        chunked_summarizer = ChunkedSummarizer(t=self.tokenizer, m=self.model, max_chunk_length=1024, max_summary_length=500)
-        return True, chunked_summarizer.summarize_chunked_text(text)
+        length = self.maximum_summary_length
+        if summary_length != "":
+            length = int(summary_length)
+        chunked_summarizer = ChunkedSummarizer(t=self.tokenizer, m=self.model, max_chunk_length=1024, max_summary_length=length)
+        return chunked_summarizer.summarize_chunked_text(text)
         # inputs = self.tokenizer(text, return_tensors="pt")
         # outputs = self.model.generate(inputs["input_ids"], num_beams=4, min_length=100, max_length=500)
         # return self.tokenizer.batch_decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]

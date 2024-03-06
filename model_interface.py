@@ -15,9 +15,9 @@ class TextType(Enum):
 class ModelInterface(ABC):
 
     def catch_exception(func):
-        def wrapper(self, text):
+        def wrapper(self, text, summary_length):
             try:
-                return True, func(self, text)
+                return True, func(self, text, summary_length)
             except (Exception, RuntimeError) as e:
                 print("An exception occurred: ", e)
                 self.unload_model();
@@ -62,7 +62,7 @@ class ModelInterface(ABC):
 
     @abstractmethod
     @catch_exception
-    def summarise(self, text) -> str:
+    def summarise(self, text, summary_length) -> str:
         pass
 
     @abstractmethod

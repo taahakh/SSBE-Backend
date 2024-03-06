@@ -1,24 +1,5 @@
 import importlib
 import json
-#Uncomment
-# import models.bartlargecnn
-
-# , models.bartxiv, models.t5medical
-
-
-# m = models.bartxiv.BartXIV()
-
-# Uncomment
-# m = models.bartlargecnn.BartLargeCNN()
-
-# Uncomment
-# def summarise(text):
-#     m.load_model()
-#     state, output = m.summarise(text);
-#     print('STATE: ' + str(state))
-#     if state:
-#         return output
-#     return "FAILED"
 
 class SummarisationManager:
 
@@ -80,7 +61,7 @@ class SummarisationManager:
         self.curr_loaded_model = m
         return m
         
-    def summarise(self, text, model_name):
+    def summarise(self, text, model_name, summary_length):
         # model = self.model_list[model_name]
         # model.load_model()
         print("Loading Model...")
@@ -88,42 +69,8 @@ class SummarisationManager:
         model = self.model_loader(model_name)
         print("Model Loaded")
         print("Summarising...")
-        state, output = model.summarise(text)
+        state, output = model.summarise(text, summary_length)
         print('STATE: ' + str(state))
         if state:
             return output
         return "FAILED"   
-        
-
-
-# sm = SummarisationManager();
-# sm.model_loader('BartLargeCNN')
-
-# sm.load_resources();
-
-
-
-# from transformers import pipeline
-
-# pipe = pipeline("summarization", model="facebook/bart-large-cnn", device=0)
-
-# def summarise(text):
-#     return pipe(text, min_length=100, max_length=500)[0]['summary_text']
-
-
-
-# def summarise(text):
-#     inputs = tokenizer(text, return_tensors="pt")
-#     outputs = model.generate(inputs["input_ids"], num_beams=4, min_length=100, max_length=500)
-#     return tokenizer.batch_decode(outputs, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
-
-
-
-
-
-
-# inputs = tokenizer(input_text, return_tensors="pt")
-# outputs = model(**inputs)
-
-# summary_ids = model.generate(inputs["input_ids"], num_beams=2, min_length=100, max_length=500)
-# print(tokenizer.batch_decode(summary_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])

@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, current_app
 from flask_restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPTokenAuth
@@ -93,7 +93,13 @@ class JsonFileResource(Resource):
 
 class ServiceManagerResource(Resource):
     def get(self, action=None):
-        return {'json': 'this is get mate'}
+        result = {}
+        if action == "getsummary":
+            finished, data = sm.check_summarisation_stat()
+            if finished:
+                result['data'] = data['output']
+            result['finished'] = finished
+        return jsonify(result)
     
     def post(self, action=None):
         try:

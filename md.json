@@ -3,13 +3,14 @@
     "model-name": "BartLargeCNN",
     "text-type": [
       "General",
+      "News",
       "News"
     ],
     "summary-type": "ab",
     "description": "Good for all types of text",
     "summary-length": {
       "min": 60,
-      "max": 500
+      "max": 512
     }
   },
   {
@@ -22,6 +23,19 @@
     "summary-length": {
       "min": 50,
       "max": 500
+    }
+  },
+  {
+    "model-name": "T5MedicalSummarisation",
+    "text-type": [
+      "Scientific",
+      "Medical"
+    ],
+    "summary-type": "ab",
+    "description": "Good for medical scientific texts",
+    "summary-length": {
+      "min": 40,
+      "max": 512
     }
   }
 ]
