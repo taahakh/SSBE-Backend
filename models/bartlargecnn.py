@@ -25,7 +25,7 @@ class Model(ModelInterface):
     
     @property
     def text_type(self) -> list[TextType]:
-        return [TextType.GENERAL, TextType.NEWS, TextType.FINANCIAL]
+        return [TextType.GENERAL, TextType.NEWS, TextType.FINANCIAL, TextType.MEDICAL, TextType.SCIENTIFIC]
     
     @property
     def defined_tokenizer(self):
@@ -62,11 +62,11 @@ class Model(ModelInterface):
     @ModelInterface.catch_exception
     def summarise(self, text, summary_length):
         print("(BartLargeCNN) Summarising...")
-        print(summary_length)
+        # print(summary_length)
         length = self.maximum_summary_length
-        print(summary_length, length)
-        if summary_length != "":
-            length = int(summary_length)
-        print(summary_length, length)
+        # print(summary_length, length)
+        # if summary_length != "":
+        #     length = int(summary_length)
+        # print(summary_length, length)
         chunked_summarizer = ChunkedSummarizer(t=self.tokenizer, m=self.model, max_chunk_length=512, max_summary_length=length)
         return chunked_summarizer.summarize_chunked_text(text)

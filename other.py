@@ -1,6 +1,8 @@
 import importlib
 import json
 
+from model_interface import SummaryType
+
 class SummarisationManager:
 
     def __init__(self):
@@ -60,6 +62,9 @@ class SummarisationManager:
         m.load_model()
         self.curr_loaded_model = m
         return m
+    
+    def is_model_abstractive(self, model_name):
+        return self.model_list[model_name].summary_type == SummaryType.ABSTRACTIVE
         
     def summarise(self, text, model_name, summary_length):
         # model = self.model_list[model_name]

@@ -66,8 +66,8 @@ class Model(ModelInterface):
     def summarise(self, text, summary_length):
         print("(T5MedicalSummarisation) Summarising...")
         length = self.maximum_summary_length
-        if summary_length != "":
-            length = int(summary_length)
+        # if summary_length != "":
+        #     length = int(summary_length)
         chunked_summarizer = CustomCS(t=self.tokenizer, m=self.model, max_chunk_length=512, max_summary_length=length)
         return chunked_summarizer.summarize_chunked_text(text)
         # return self.pipe(text, min_length=100, max_length=500)[0]['summary_text']

@@ -4,7 +4,9 @@
     "text-type": [
       "General",
       "News",
-      "News"
+      "News",
+      "Medical",
+      "Scientific"
     ],
     "summary-type": "ab",
     "description": "Good for all types of text",
@@ -36,6 +38,46 @@
     "summary-length": {
       "min": 40,
       "max": 512
+    }
+  },
+  {
+    "model-name": "SBERT",
+    "text-type": [
+      "General",
+      "News",
+      "News",
+      "Medical",
+      "Scientific"
+    ],
+    "summary-type": "ex",
+    "description": "Good for all texts",
+    "summary-length": {
+      "min": -1,
+      "max": 1
+    }
+  },
+  {
+    "model-name": "SciBERT",
+    "text-type": [
+      "Scientific"
+    ],
+    "summary-type": "ex",
+    "description": "Good for all scientific text",
+    "summary-length": {
+      "min": -1,
+      "max": 1
+    }
+  },
+  {
+    "model-name": "Summa",
+    "text-type": [
+      "General"
+    ],
+    "summary-type": "ex",
+    "description": "Good for all texts",
+    "summary-length": {
+      "min": -1,
+      "max": 1
     }
   }
 ]
