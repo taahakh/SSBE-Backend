@@ -79,7 +79,7 @@ class TestApp(unittest.TestCase):
         self.req_error_block(self.app.post('/auth/signup', json={"" : ""}))
         
         # Test with existing user
-        self.req_error_block(self.app.post('/auth/signup', json={"" : ""}))
+        self.req_error_block(self.app.post('/auth/signup', json={"test" : "test"}))
 
         # Test with empty username
         self.req_error_block(self.app.post('/auth/signup', json={"username" : "", "password" : "test_password"}))
