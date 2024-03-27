@@ -1,0 +1,3 @@
+exporting pytest path
+
+MACOS: export PATH=/Users/taaha/Library/Python/3.9/bin:$PATH

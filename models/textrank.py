@@ -1,5 +1,5 @@
 from model_interface import ModelInterface, SummaryType, TextType
-from transformers import *
+# from transformers import *
 from summa.summarizer import summarize as suma
 
 class Model(ModelInterface):

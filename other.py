@@ -1,24 +1,29 @@
 import importlib
 import json
+import os
 
 from model_interface import SummaryType
 
 class SummarisationManager:
 
-    def __init__(self):
+    def __init__(self, model_src_path='model_list.txt', json_output_path='md.json'):
         self.model_list = {}
         self.curr_loaded_model = None;
-        self.load_resources()
-        self.create_model_descriptors()
+        
+        if (not self.load_resources(model_src_path)):
+            print("Failed to load resources")
+            exit(1)
 
-    def create_model_descriptors(self):
+        self.create_model_descriptors(json_output_path)
+
+    def create_model_descriptors(self, output_path):
         
         descriptor_list = []
 
         for _, value in self.model_list.items():
             if value.summary_type.value == "Abstractive": 
                 st = "ab" 
-            else :
+            else:
                 st = "ex"
 
             model_descriptor = {
@@ -36,22 +41,35 @@ class SummarisationManager:
         
             descriptor_list.append(model_descriptor)
         
-        with open('md.json', 'w') as file:
+        with open(output_path, 'w') as file:
             json.dump(descriptor_list, file, indent=2)
 
 
-    def load_resources(self):
+    def load_resources(self, src_path) -> bool:
 
-        with open('model_list.txt', 'r') as file:
+        if src_path is None or src_path == "":
+            return False
+        
+        if os.path.getsize(src_path) == 0:
+            return False
+
+        with open(src_path, 'r') as file:
             model_list = file.read().splitlines()
             print(model_list)
 
-        for model in model_list:
-            model = importlib.import_module("models."+model)
-            self.model_list[model.Model().model_name] = model.Model()
+        try:
+            for model in model_list:
+                model = importlib.import_module("models."+model)
+                self.model_list[model.Model().model_name] = model.Model()
+        except Exception as e:
+            print(e)
+            print("Model name not found in models directory")
+            return False
         
         print(self.model_list)
+        return True
 
+    # Do test
     def model_loader(self, model):
         print(model)
         if self.curr_loaded_model is not None:

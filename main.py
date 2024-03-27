@@ -38,11 +38,14 @@ def has_token_user(request):
 
 @auth.verify_token
 def verify_token(token):
-    print(token)
-    if not token:
+    print('Token: ', token)
+    if not token or token == 'null' or token == 'undefined':
+        print("No token")
         return None
     user = User.query.filter_by(api_key=token).first()
-    print(user)
+    print("User: ", user)
+    if user is None:
+        return None
     return user
 
 
@@ -55,13 +58,22 @@ class LoginResource(Resource):
         #     print("Login success - APIKEY: ", request.authorization)
         #     return jsonify({'message': 'Login/Connect Successful!', 'state' : 'GOOD'})
         # else:
-        x = request.get_json()
+        x = request.get_json(silent=True)
+
         print(x)
+        print("Did get this far")
+        if x is None or 'username' not in x or 'password' not in x:
+            return jsonify({'message' : 'Invalid request!', 'state' : 'BAD'})
+
         user = User.query.filter_by(username=x['username']).first()
         
         if user is None:
             print("Login FAILED - User doesn't exist: ")
             return jsonify({'message': 'User does not exist!', 'state' : 'BAD'})
+
+        if user.password != x['password']:
+            print("Login FAILED - Password incorrect: ")
+            return jsonify({'message': 'Password incorrect!', 'state' : 'BAD'})
 
         print("Login success: ", user)
         return jsonify({"message": "Login/Connect Successful!", "api_key" : user.api_key, 'state' : 'GOOD'})
@@ -69,8 +81,14 @@ class LoginResource(Resource):
 
 class SignupResource(Resource):
     def post(self):
-        x = request.get_json()
+        x = request.get_json(silent=True)
         print(x)
+
+        if x is None or 'username' not in x or 'password' not in x:
+            return jsonify({'message' : 'Invalid request!', 'state' : 'BAD'})
+        if len(x['username']) == 0 or len(x['password']) < 0:
+            return jsonify({'message' : 'Invalid request!', 'state' : 'BAD'})
+            
         user = User.query.filter_by(username=x['username']).first()
         if user is None:
             key = str(uuid.uuid4())
@@ -92,16 +110,18 @@ class JsonFileResource(Resource):
         return {'json': 'this is get mate'}
 
 class ServiceManagerResource(Resource):
-    def get(self, action=None):
-        result = {}
-        if action == "getsummary":
-            finished, data = sm.check_summarisation_stat()
-            if finished:
-                result['data'] = data['output']
-            result['finished'] = finished
-        return jsonify(result)
+    # def get(self, action=None):
+    #     result = {}
+    #     if action == "getsummary":
+    #         finished, data = sm.check_summarisation_stat()
+    #         if finished:
+    #             result['data'] = data['output']
+    #         result['finished'] = finished
+    #     return jsonify(result)
     
+    @auth.login_required
     def post(self, action=None):
+        print("SVR: ", request.headers)
         try:
             # Assuming the JSON file is in the request body
             json_data = request.get_json()
@@ -122,6 +142,7 @@ class ServiceManagerResource(Resource):
         except Exception as e:
             error_message = {"status": "error", "message": str('OH NO: ' + str(e))}
             return error_message, 400
+        
 
 class HelloWorld(Resource):
     def get(self):

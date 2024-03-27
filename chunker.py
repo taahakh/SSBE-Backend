@@ -6,19 +6,15 @@ class ChunkedSummarizer:
         self.min_summary_length = min_summary_length # min token length for the summary
         self.max_summary_length = max_summary_length # max token length for the summary
 
-    # Can be overriden
     def tokenize_input(self, input_text):
         return self.tokenizer(input_text, return_tensors="pt", truncation=True)
 
-    # Can be overriden
     def model_generate(self, input_ids):
         return self.model.generate(input_ids, min_length=self.min_summary_length, max_length=self.max_summary_length, num_beams=4, early_stopping=True)
     
-    # Can be overriden
     def decode_summary(self, summary_ids):
         return self.tokenizer.decode(summary_ids, skip_special_tokens=True)
 
-    #SHOULD NOT BE OVERRIDEN
     def summarize_chunked_text(self, input_text):
         # Tokenise the entire input text
         tokenized_input = self.tokenize_input(input_text)
