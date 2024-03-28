@@ -124,16 +124,35 @@ class ServiceManagerResource(Resource):
         print("SVR: ", request.headers)
         try:
             # Assuming the JSON file is in the request body
-            json_data = request.get_json()
-            # print(json_data)
+            json_data = request.get_json(silent=True)
+
+            if json_data is None:
+                return {"status": "error", "message": "Invalid request - no JSON data found"}, 400
+
+            print(json_data)
 
             result = {"status" : "success"}
             if action == 'summarise':
                 print("Summarising")
+                print(type(json_data['customisation']) == dict)
+
+                if 'text' not in json_data or 'customisation' not in json_data or 'extractedType' not in json_data:
+                    return {"status": "error", "message": "Invalid request - missing one or more key entries [key, customisation, extractedType]"}, 400
+
+                if json_data['text'] == "" or type(json_data['customisation']) != dict or json_data['extractedType'] == "":
+                    return {"status": "error", "message": "Invalid request - one or more key value entries are empty [key, customisation, extractedType]"}, 400
+
+                print("Summarising")
                 print(json_data['text'][0:20])
                 print(json_data['customisation'])
                 print(json_data['extractedType'])
-                result['data'] = sm.start_summarisation(json_data)
+
+                state, output = sm.start_summarisation(json_data)
+                
+                if not state:
+                    return {"status": "error", "message": "Summarisation failed"}, 400
+                
+                result['data'] = output
             elif action == "scrape":
                 result['data'] = sm.start_scraping(json_data)
             

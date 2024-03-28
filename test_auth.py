@@ -3,7 +3,45 @@ from main import app
 from database_models import db, User
 from other import SummarisationManager
 from model_interface import TextType
+import servicemanager, model_interface
 import os, json
+
+EXAMPLE_TEXT = """
+Ancient Egyptian literature was written with the Egyptian language from ancient Egypt's pharaonic period until the end of Roman domination. It represents the oldest corpus of Egyptian literature. Along with Sumerian literature, it is considered the world's earliest literature.[1]
+
+Writing in ancient Egypt—both hieroglyphic and hieratic—first appeared in the late 4th millennium BC during the late phase of predynastic Egypt. By the Old Kingdom (26th century BC to 22nd century BC), literary works included funerary texts, epistles and letters, hymns and poems, and commemorative autobiographical texts recounting the careers of prominent administrative officials. It was not until the early Middle Kingdom (21st century BC to 17th century BC) that a narrative Egyptian literature was created. This was a "media revolution" which, according to Richard B. Parkinson, was the result of the rise of an intellectual class of scribes, new cultural sensibilities about individuality, unprecedented levels of literacy, and mainstream access to written materials.[2] The creation of literature was thus an elite exercise, monopolized by a scribal class attached to government offices and the royal court of the ruling pharaoh. However, there is no full consensus among modern scholars concerning the dependence of ancient Egyptian literature on the sociopolitical order of the royal courts.
+
+Underground Egyptian tombs built in the desert provide possibly the most protective environment for the preservation of papyrus documents. For example, there are many well-preserved Book of the Dead funerary papyri placed in tombs to act as afterlife guides for the souls of the deceased tomb occupants.[24] However, it was only customary during the late Middle Kingdom and first half of the New Kingdom to place non-religious papyri in burial chambers. Thus, the majority of well-preserved literary papyri are dated to this period.[24]
+"""
+
+EXAMPLE_HTML = """  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <div>
+        <div>
+            <p>
+                Ancient Egyptian literature was written with the Egyptian language from ancient Egypt's pharaonic period until the end of Roman domination. It represents the oldest corpus of Egyptian literature. Along with Sumerian literature, it is considered the world's earliest literature.[1]
+            </p>
+            <p>
+                Writing in ancient Egypt—both hieroglyphic and hieratic—first appeared in the late 4th millennium BC during the late phase of predynastic Egypt. By the Old Kingdom (26th century BC to 22nd century BC), literary works included funerary texts, epistles and letters, hymns and poems, and commemorative autobiographical texts recounting the careers of prominent administrative officials. It was not until the early Middle Kingdom (21st century BC to 17th century BC) that a narrative Egyptian literature was created. This was a "media revolution" which, according to Richard B. Parkinson, was the result of the rise of an intellectual class of scribes, new cultural sensibilities about individuality, unprecedented levels of literacy, and mainstream access to written materials.[2] The creation of literature was thus an elite exercise, monopolized by a scribal class attached to government offices and the royal court of the ruling pharaoh. However, there is no full consensus among modern scholars concerning the dependence of ancient Egyptian literature on the sociopolitical order of the royal courts. 
+            </p>
+            <p>
+                Underground Egyptian tombs built in the desert provide possibly the most protective environment for the preservation of papyrus documents. For example, there are many well-preserved Book of the Dead funerary papyri placed in tombs to act as afterlife guides for the souls of the deceased tomb occupants.[24] However, it was only customary during the late Middle Kingdom and first half of the New Kingdom to place non-religious papyri in burial chambers. Thus, the majority of well-preserved literary papyri are dated to this period.[24]
+            </p>
+        </div>
+    </div>
+</head>
+<body>
+    
+</body>
+</html>
+
+
+"""
 
 class TestApp(unittest.TestCase):
 
@@ -128,8 +166,34 @@ class TestApp(unittest.TestCase):
         # self.assertIsNotNone(data['data']['T5MedicalSummarisation'])
     
     # No test needed, program will terminate given the set conditions within the function
+    # Tests SummarisationManager: load_resources(self, src_path) -> bool
     # def test_bad_model_list(self):
     #     pass
+    
+    def test_model_list(self):
+        sm = SummarisationManager()
+        self.assertIsNotNone(sm.model_list)
+
+        state, md = sm.model_loader('BartLargeCNN')
+        self.assertTrue(state)
+        self.assertIsNotNone(md)
+
+        state, md = sm.model_loader('SBERT')
+        self.assertTrue(state)
+        self.assertIsNotNone(md)
+
+        state, md = sm.model_loader('T5MedicalSummarisation')
+        self.assertTrue(state)
+        self.assertIsNotNone(md)
+
+        state, md = sm.model_loader('fake')
+        self.assertFalse(state)
+        self.assertIsNone(md)
+
+        state, md = sm.model_loader('')
+        self.assertFalse(state)
+        self.assertIsNone(md)
+
     
     def test_nondefault_model_list(self):
         with open('model_list_TEST.txt', 'w') as file:
@@ -179,6 +243,101 @@ class TestApp(unittest.TestCase):
         os.remove('model_list_TEST.txt')
         os.remove('md_TEST.json')
 
+    def get_test_user_api_key(self):
+        response = self.app.post('/auth/login', json={"username": "test_user", "password": "test_password"})
+        data = response.get_json()
+        return data['api_key']
+    
+    def invalid_request_summarisation_block(self, headers, json=None):
+        if json is None:
+            response = self.app.post('/servicemanager/summarise', headers=headers)
+        else:
+            response = self.app.post('/servicemanager/summarise', headers=headers, json=json)
+        
+        self.assertEqual(response.status_code, 400)
+    
+    def test_invalid_request_summarisation(self):
+        custom_headers = {'Authorization': 'Bearer '+self.get_test_user_api_key(), 'Content-Type': 'application/json'}
+
+        # Test with no data (JSON)
+        self.invalid_request_summarisation_block(custom_headers)
+
+
+        # Test with empty data
+        self.invalid_request_summarisation_block(custom_headers, {})
+
+        # Not trying all combinations, just a few. The rest are similar. All will fail if its missing any keys and values
+        # just a simple or comparison
+        self.invalid_request_summarisation_block(custom_headers, {"text" : ""})
+
+        self.invalid_request_summarisation_block(custom_headers, {"customisation" : ""})
+
+        self.invalid_request_summarisation_block(custom_headers, {"customisation" : {}})
+
+        self.invalid_request_summarisation_block(custom_headers, {"extractedType" : ""})
+
+        # Test with empty everything
+        self.invalid_request_summarisation_block(custom_headers, {"text" : "", "customisation" : {}, "extractedType" : ""})
+
+        # Test with empty text
+        self.invalid_request_summarisation_block(custom_headers, {"text" : "", "customisation" : {}, "extractedType" : "html"})
+
+        # Test with empty customisation
+        self.invalid_request_summarisation_block(custom_headers, {"text" : "test", "customisation" : {}, "extractedType" : "html"})
+
+        # Test with empty extractedType
+        self.invalid_request_summarisation_block(custom_headers, {"text" : "test", "customisation" : {}, "extractedType" : ""})
+
+
+    def test_invalid_request_data_summarisation(self):
+        custom_headers = {'Authorization': 'Bearer '+self.get_test_user_api_key(), 'Content-Type': 'application/json'}
+
+        #Test invalid HTML extraction
+        self.invalid_request_summarisation_block(custom_headers, {"text" : "not html - missing html tag", "customisation" : {}, "extractedType" : "html"})
+
+        #Test invalid summary length
+        self.invalid_request_summarisation_block(custom_headers, {"text" : "test", "customisation" : {"summary-length" : -1}, "extractedType" : "extracted"})
+        self.invalid_request_summarisation_block(custom_headers, {"text" : "test", "customisation" : {"summary-length" : 101}, "extractedType" : "extracted"})
+
+        #Test invalid model
+        self.invalid_request_summarisation_block(custom_headers, {"text" : "test", "customisation" : {"model" : ""}, "extractedType" : "extracted"})
+        self.invalid_request_summarisation_block(custom_headers, {"text" : "test", "customisation" : {"model" : "invalidmodel"}, "extractedType" : "extracted"})
+        self.invalid_request_summarisation_block(custom_headers, {"text" : "test", "customisation" : {"model" : "bartlargecnn"}, "extractedType" : "extracted"}) #case sensitive
+
+    def valid_request_summarisation_block(self, json):
+        custom_headers = {'Authorization': 'Bearer '+self.get_test_user_api_key(), 'Content-Type': 'application/json'}
+        
+        response = self.app.post('/servicemanager/summarise', headers=custom_headers, json=json)
+        data = response.get_json()
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNotNone(data['data'])
+
+    def test_valid_request_summarisation(self):
+
+        # Test with extracted text
+        self.valid_request_summarisation_block({"text" : EXAMPLE_TEXT, "customisation" : {"model" : "BartLargeCNN"}, "extractedType" : "extracted"})
+        
+        # Test with html
+        self.valid_request_summarisation_block({"text" : EXAMPLE_HTML, "customisation" : {"model" : "BartLargeCNN"}, "extractedType" : "html"})
+
+        # Test with custom summary length
+        self.valid_request_summarisation_block({"text" : EXAMPLE_TEXT, "customisation" : {"model" : "BartLargeCNN", "summary-length" : "50"}, "extractedType" : "extracted"})
+    
+    def test_clean_escape_char(self):
+        sm = servicemanager.ServiceManager()
+        self.assertEqual(sm.fix_escape_chars("test\\n"), "test")
+        self.assertEqual(sm.fix_escape_chars("test\n"), "test")
+        self.assertEqual(sm.fix_escape_chars("test\\t"), "test")
+        self.assertEqual(sm.fix_escape_chars("test\t"), "test")
+        self.assertEqual(sm.fix_escape_chars("test\\\""), 'test"')
+
+    def test_is_model_abstractive(self):
+        sm = SummarisationManager()
+        self.assertIsInstance(sm.is_model_abstractive("BartLargeCNN"), model_interface.ModelInterface)
+        # self.assertTrue(sm.is_model_abstractive("BartLargeCNN"))
+        self.assertIsNone(sm.is_model_abstractive("SBERT"))
+        self.assertIsInstance(sm.is_model_abstractive("T5MedicalSummarisation"), model_interface.ModelInterface)
 
 if __name__ == '__main__':
     unittest.main()

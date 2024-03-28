@@ -21,34 +21,56 @@ class ServiceManager:
         result = self.reductor_model(text, ratio=r)
         return ''.join(result)
     
-    # Provide test
     def start_summarisation(self, data):
         content = data["text"]
         print('extractedType: ', data['extractedType'])
-        print(data['customisation']['summary-length'])
+        # print(data['customisation']['summary-length'])
 
+        print(data)
+        # if extractedType == "extracted" or anything else,
+        # then skip this code block
         if (data['extractedType'] == 'html'):
             print('HTML')
             extractor = extractors.ArticleExtractor()
-            content = extractor.get_content(content)
+            try:
+                content = extractor.get_content(content)
+            except:
+                print('Error extracting html content')
+                return False, None
 
         content = self.fix_escape_chars(content)
 
 
         print("\n-------------------\n")
       
-        l = data['customisation']['summary-length']
+        if 'summary-length' not in data['customisation']:
+            l = ""
+        else: 
+            if data['customisation']['summary-length'] == "":
+                l = ""
+            else:
+                l = data['customisation']['summary-length']
+                l = int(l)
+                if l < 0 or l > 100:
+                    print('Invalid summary length')
+                    return False, None
+                
+                l = float(l/100)
 
         # model = Summarizer()
         # result = model(content, ratio=0.5)
         # content = ''.join(result)
         # print('Text reducer: ', content)
+        print("before text reducer: ", content)
         content = self.reductor(content)
         print('Text reducer: ', content)
 
-        content = self.summ.summarise(content, data['customisation']['model'], l)
+        state, content = self.summ.summarise(content, data['customisation']['model'], l)
 
-        if l != "" and self.summ.is_model_abstractive(data['customisation']['model']):
+        if not state:
+            return state, None
+
+        if l != "" and self.summ.is_model_abstractive(data['customisation']['model']) is not None:
             l = float(l)
             # model = Summarizer()
             # result = model(content, ratio=l)
@@ -56,14 +78,5 @@ class ServiceManager:
             content = self.reductor(content, l)
             print('Text reducer: ', content)
 
-        return content
+        return state, content
 
-    
-    # def start_scraping(self, data):
-    #     print("Scraping")
-    #     soup = BeautifulSoup(data["text"], 'html.parser')
-    #     # print(soup.find_all('h1'))
-    #     [s.extract() for s in soup(['style', 'script', 'link', 'footer', '[document]', 'head', 'title'])]
-    #     visible_text = soup.getText()
-    #     print(visible_text)
-    #     return json.dumps({"data": visible_text})

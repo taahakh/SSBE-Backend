@@ -69,31 +69,40 @@ class SummarisationManager:
         print(self.model_list)
         return True
 
-    # Do test
     def model_loader(self, model):
         print(model)
         if self.curr_loaded_model is not None:
             self.curr_loaded_model.unload_model()
         print("ok")
+        if model not in self.model_list:
+            return False, None
         m = self.model_list[model]
         print(m)
         m.load_model()
         self.curr_loaded_model = m
-        return m
+        return True, m
     
     def is_model_abstractive(self, model_name):
-        return self.model_list[model_name].summary_type == SummaryType.ABSTRACTIVE
+        if model_name not in self.model_list:
+            return None
+        return self.model_list[model_name] if self.model_list[model_name].summary_type == SummaryType.ABSTRACTIVE else None
         
     def summarise(self, text, model_name, summary_length):
         # model = self.model_list[model_name]
         # model.load_model()
         print("Loading Model...")
         # print
-        model = self.model_loader(model_name)
+        exist, model = self.model_loader(model_name)
+
+        if not exist:
+            print("Model not found")
+            return exist, None
+
         print("Model Loaded")
         print("Summarising...")
-        state, output = model.summarise(text, summary_length)
-        print('STATE: ' + str(state))
-        if state:
-            return output
-        return "FAILED"   
+        # state, output = model.summarise(text, summary_length)
+        # print('STATE: ' + str(state))
+        # if state:
+        #     return output
+        # return "FAILED"   
+        return model.summarise(text, summary_length)
