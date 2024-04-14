@@ -15,7 +15,6 @@ class Model(ModelInterface):
     def maximum_summary_length(self) -> int:
         return 1
 
-    # Abstractive (ab) / Extractive (ex)
     @property
     def summary_type(self) -> SummaryType:
         return SummaryType.EXTRACTIVE

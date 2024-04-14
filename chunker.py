@@ -1,20 +1,38 @@
 class ChunkedSummarizer:
+    """
+    Class for summarizing large text by dividing it into chunks.
+    """
     def __init__(self, t, m, max_chunk_length=512, min_summary_length=100, max_summary_length=500):
-        self.tokenizer = t
+        """
+        Initialize ChunkedSummarizer.
+
+        Args:
+            t: tokeniser for tokenizing the input text.
+            m: Model for generating summaries.
+            max_chunk_length (int): Maximum token length for each chunk.
+            min_summary_length (int): Minimum token length for the summary.
+            max_summary_length (int): Maximum token length for the summary.
+        """
+        
+        self.tokeniser = t
         self.model = m
         self.max_chunk_length = max_chunk_length # max token length for the chunk
         self.min_summary_length = min_summary_length # min token length for the summary
         self.max_summary_length = max_summary_length # max token length for the summary
 
+    # Tokenise the input text
     def tokenize_input(self, input_text):
-        return self.tokenizer(input_text, return_tensors="pt", truncation=True)
+        return self.tokeniser(input_text, return_tensors="pt", truncation=True)
 
+    # Generate the summary for the input text
     def model_generate(self, input_ids):
         return self.model.generate(input_ids, min_length=self.min_summary_length, max_length=self.max_summary_length, num_beams=4, early_stopping=True)
     
+    # Decode the tokenised summary to text
     def decode_summary(self, summary_ids):
-        return self.tokenizer.decode(summary_ids, skip_special_tokens=True)
+        return self.tokeniser.decode(summary_ids, skip_special_tokens=True)
 
+    # Summarize the input text in chunks
     def summarize_chunked_text(self, input_text):
         # Tokenise the entire input text
         tokenized_input = self.tokenize_input(input_text)
@@ -28,6 +46,7 @@ class ChunkedSummarizer:
         # Concatenated summary of all the chunks
         aggregated_summary = ""
 
+        # Loop through the input text in chunks
         while current_position < input_sequence_length:
             print(f"Chunk: {current_position}")
 
@@ -49,7 +68,6 @@ class ChunkedSummarizer:
             # Move to the next chunk
             current_position += self.max_chunk_length
         
-        print(aggregated_summary)
         print(f'Total Chunks: {current_position/self.max_chunk_length}')
         return aggregated_summary.strip()
 
