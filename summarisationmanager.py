@@ -36,8 +36,6 @@ class SummarisationManager:
                     "max" : value.maximum_summary_length
                 }
             }
-
-            print(value.summary_type.value)
         
             descriptor_list.append(model_descriptor)
         
@@ -66,18 +64,14 @@ class SummarisationManager:
             print("Model name not found in models directory")
             return False
         
-        print(self.model_list)
         return True
 
     def model_loader(self, model):
-        print(model)
         if self.curr_loaded_model is not None:
             self.curr_loaded_model.unload_model()
-        print("ok")
         if model not in self.model_list:
             return False, None
         m = self.model_list[model]
-        print(m)
         m.load_model()
         self.curr_loaded_model = m
         return True, m
@@ -88,10 +82,7 @@ class SummarisationManager:
         return self.model_list[model_name] if self.model_list[model_name].summary_type == SummaryType.ABSTRACTIVE else None
         
     def summarise(self, text, model_name, summary_length):
-        # model = self.model_list[model_name]
-        # model.load_model()
         print("Loading Model...")
-        # print
         exist, model = self.model_loader(model_name)
 
         if not exist:
@@ -99,10 +90,5 @@ class SummarisationManager:
             return exist, None
 
         print("Model Loaded")
-        print("Summarising...")
-        # state, output = model.summarise(text, summary_length)
-        # print('STATE: ' + str(state))
-        # if state:
-        #     return output
-        # return "FAILED"   
+        print("Summarising...") 
         return model.summarise(text, summary_length)

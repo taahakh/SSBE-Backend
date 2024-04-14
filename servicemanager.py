@@ -1,6 +1,5 @@
 import json
-from other import SummarisationManager
-# from bs4 import BeautifulSoup
+from summarisationmanager import SummarisationManager
 from summarizer.bert import Summarizer # help reduce the size of the text for the actual model (extraction)
 from boilerpy3 import extractors
 
@@ -24,7 +23,6 @@ class ServiceManager:
     def start_summarisation(self, data):
         content = data["text"]
         print('extractedType: ', data['extractedType'])
-        # print(data['customisation']['summary-length'])
 
         print(data)
         # if extractedType == "extracted" or anything else,
@@ -39,9 +37,6 @@ class ServiceManager:
                 return False, None
 
         content = self.fix_escape_chars(content)
-
-
-        print("\n-------------------\n")
       
         if 'summary-length' not in data['customisation']:
             l = ""
@@ -57,13 +52,7 @@ class ServiceManager:
                 
                 l = float(l/100)
 
-        # model = Summarizer()
-        # result = model(content, ratio=0.5)
-        # content = ''.join(result)
-        # print('Text reducer: ', content)
-        print("before text reducer: ", content)
         content = self.reductor(content)
-        print('Text reducer: ', content)
 
         state, content = self.summ.summarise(content, data['customisation']['model'], l)
 
@@ -72,11 +61,8 @@ class ServiceManager:
 
         if l != "" and self.summ.is_model_abstractive(data['customisation']['model']) is not None:
             l = float(l)
-            # model = Summarizer()
-            # result = model(content, ratio=l)
-            # content = ''.join(result)
+
             content = self.reductor(content, l)
-            print('Text reducer: ', content)
 
         return state, content
 

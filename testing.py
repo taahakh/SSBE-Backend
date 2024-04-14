@@ -1,7 +1,7 @@
 import unittest
 from main import app
 from database_models import db, User
-from other import SummarisationManager
+from summarisationmanager import SummarisationManager
 from model_interface import TextType
 import servicemanager, model_interface
 import os, json

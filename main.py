@@ -5,7 +5,6 @@ from flask_httpauth import HTTPTokenAuth
 from flask_cors import CORS
 from database_models import db, User
 import uuid
-# from other import summarise
 import servicemanager as svm
 
 app = Flask(__name__)
@@ -15,10 +14,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.app = app;
 db.init_app(app);
-# db = SQLAlchemy(app)
 auth = HTTPTokenAuth(scheme="Bearer")
 api = Api(app)
 
+# Creating the database
+# db = SQLAlchemy(app)
 # with app.app_context():
 #     db.create_all()
 
@@ -51,17 +51,9 @@ def verify_token(token):
 
 class LoginResource(Resource):
     def post(self):
-        print(User.query.all())
-        print(request.headers)
-        # print(has_token_user(request))
-        # if (has_token_user(request)):
-        #     print("Login success - APIKEY: ", request.authorization)
-        #     return jsonify({'message': 'Login/Connect Successful!', 'state' : 'GOOD'})
-        # else:
+
         x = request.get_json(silent=True)
 
-        print(x)
-        print("Did get this far")
         if x is None or 'username' not in x or 'password' not in x:
             return jsonify({'message' : 'Invalid request!', 'state' : 'BAD'})
 
@@ -72,10 +64,8 @@ class LoginResource(Resource):
             return jsonify({'message': 'User does not exist!', 'state' : 'BAD'})
 
         if user.password != x['password']:
-            print("Login FAILED - Password incorrect: ")
             return jsonify({'message': 'Password incorrect!', 'state' : 'BAD'})
 
-        print("Login success: ", user)
         return jsonify({"message": "Login/Connect Successful!", "api_key" : user.api_key, 'state' : 'GOOD'})
 
 
@@ -110,15 +100,6 @@ class JsonFileResource(Resource):
         return {'json': 'this is get mate'}
 
 class ServiceManagerResource(Resource):
-    # def get(self, action=None):
-    #     result = {}
-    #     if action == "getsummary":
-    #         finished, data = sm.check_summarisation_stat()
-    #         if finished:
-    #             result['data'] = data['output']
-    #         result['finished'] = finished
-    #     return jsonify(result)
-    
     @auth.login_required
     def post(self, action=None):
         print("SVR: ", request.headers)
@@ -173,25 +154,26 @@ api.add_resource(JsonFileResource, '/jsonfile', '/jsonfile/<filename>')
 api.add_resource(SignupResource, '/auth/signup');
 api.add_resource(LoginResource, '/auth/login');
 
-@app.route('/home')
-def index():
-    return render_template('index.html')
+# Test routes
+# @app.route('/home')
+# def index():
+#     return render_template('index.html')
 
-@app.route('/home/a')
-def index_a():
-    return render_template('test.html')
+# @app.route('/home/a')
+# def index_a():
+#     return render_template('test.html')
 
-@app.route('/home/c/b')
-def index_c_b():
-    return render_template('index.html')
+# @app.route('/home/c/b')
+# def index_c_b():
+#     return render_template('index.html')
 
-@app.route('/home/a/b')
-def index_a_b():
-    return render_template('index.html')
+# @app.route('/home/a/b')
+# def index_a_b():
+#     return render_template('index.html')
 
-@app.route('/other/a')
-def other_a():
-    return render_template('index.html')
+# @app.route('/other/a')
+# def other_a():
+#     return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
