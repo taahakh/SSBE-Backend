@@ -153,7 +153,7 @@ class SummarisationManager:
         exist, model = self.model_loader(model_name)
 
         if not exist:
-            print("Model not found")
+            print(f"Model {model_name} not found")
             return exist, None
 
         print("Model Loaded")

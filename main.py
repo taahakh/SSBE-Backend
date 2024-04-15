@@ -180,19 +180,19 @@ api.add_resource(LoginResource, '/auth/login');
 
 # --- Test routes ---
 
-# class HelloWorld(Resource):
-#     def get(self):
-#         return {'hello': 'world'}
+class HelloWorld(Resource):
+    def get(self):
+        return {'hello': 'world'}
 
-# api.add_resource(HelloWorld, '/')
+api.add_resource(HelloWorld, '/')
 
-# @app.route('/home')
-# def index():
-#     return render_template('index.html')
+@app.route('/home')
+def index():
+    return render_template('index.html')
 
-# @app.route('/home/a')
-# def index_a():
-#     return render_template('test.html')
+@app.route('/home/a')
+def index_a():
+    return render_template('test.html')
 
 # @app.route('/home/c/b')
 # def index_c_b():
@@ -207,4 +207,4 @@ api.add_resource(LoginResource, '/auth/login');
 #     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)

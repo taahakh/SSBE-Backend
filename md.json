@@ -4,15 +4,41 @@
     "text-type": [
       "General",
       "News",
-      "News",
-      "Medical",
-      "Scientific"
+      "Financial",
+      "Medical"
     ],
     "summary-type": "ab",
     "description": "Good for all types of text",
     "summary-length": {
       "min": 60,
       "max": 512
+    }
+  },
+  {
+    "model-name": "T5MedicalSummarisation",
+    "text-type": [
+      "Medical"
+    ],
+    "summary-type": "ab",
+    "description": "Good for medical scientific texts",
+    "summary-length": {
+      "min": 40,
+      "max": 500
+    }
+  },
+  {
+    "model-name": "SBERT",
+    "text-type": [
+      "General",
+      "News",
+      "Financial",
+      "Medical"
+    ],
+    "summary-type": "ex",
+    "description": "Good for all texts",
+    "summary-length": {
+      "min": -1,
+      "max": 1
     }
   }
 ]

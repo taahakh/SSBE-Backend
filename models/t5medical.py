@@ -29,7 +29,7 @@ class Model(ModelInterface):
 
     @property
     def maximum_summary_length(self) -> int:
-        return 512
+        return 500
 
     # Abstractive (ab) / Extractive (ex)
     @property
@@ -38,7 +38,7 @@ class Model(ModelInterface):
     
     @property
     def text_type(self) -> list[TextType]:
-        return [TextType.SCIENTIFIC, TextType.MEDICAL]
+        return [TextType.MEDICAL]
 
     # Little description about the model
     @property

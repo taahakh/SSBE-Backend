@@ -23,7 +23,7 @@ class Model(ModelInterface):
     
     @property
     def text_type(self) -> list[TextType]:
-        return [TextType.GENERAL, TextType.NEWS, TextType.FINANCIAL, TextType.MEDICAL, TextType.SCIENTIFIC]
+        return [TextType.GENERAL, TextType.NEWS, TextType.FINANCIAL, TextType.MEDICAL]
     
     @property
     def defined_tokenizer(self):

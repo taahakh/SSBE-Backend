@@ -25,7 +25,7 @@ class TextType(Enum):
     """
     GENERAL = "General"
     NEWS = "News"
-    FINANCIAL = "News"
+    FINANCIAL = "Financial"
     MEDICAL = "Medical"
     SCIENTIFIC = "Scientific"
 
