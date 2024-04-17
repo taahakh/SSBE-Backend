@@ -22,18 +22,57 @@ class ChunkedSummarizer:
 
     # Tokenise the input text
     def tokenize_input(self, input_text):
-        return self.tokeniser(input_text, return_tensors="pt", truncation=True)
+            """
+            Tokenises the input text using the tokeniser.
+
+            Args:
+                input_text (str): The input text to be tokenised.
+
+            Returns:
+                dict: A dictionary containing the tokenised input text.
+
+            """
+            return self.tokeniser(input_text, return_tensors="pt", truncation=True)
 
     # Generate the summary for the input text
     def model_generate(self, input_ids):
+        """
+        Generates a summary using the underlying model.
+
+        Args:
+            input_ids (list): The input token IDs.
+
+        Returns:
+            list: The generated summary token IDs.
+        """
         return self.model.generate(input_ids, min_length=self.min_summary_length, max_length=self.max_summary_length, num_beams=4, early_stopping=True)
     
     # Decode the tokenised summary to text
     def decode_summary(self, summary_ids):
-        return self.tokeniser.decode(summary_ids, skip_special_tokens=True)
+            """
+            Decodes the summary IDs into a human-readable summary.
+
+            Args:
+                summary_ids (list): A list of summary IDs.
+
+            Returns:
+                str: The decoded summary.
+
+            """
+            return self.tokeniser.decode(summary_ids, skip_special_tokens=True)
 
     # Summarize the input text in chunks
     def summarize_chunked_text(self, input_text):
+        """
+        Summarises the input text by chunking it into smaller parts and generating summaries for each chunk.
+
+        Args:
+            input_text (str): The input text to be summarized.
+
+        Returns:
+            str: The aggregated summary of all the chunks.
+
+        """
         # Tokenise the entire input text
         tokenized_input = self.tokenize_input(input_text)
 

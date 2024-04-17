@@ -1,0 +1,12 @@
+bert_extractive_summarizer==0.10.1
+boilerpy3==1.0.7
+Flask==3.0.3
+Flask_Cors==4.0.0
+Flask_HTTPAuth==4.8.0
+Flask_RESTful==0.3.10
+flask_sqlalchemy==3.1.1
+summa==1.2.0
+summarizer==0.0.7
+transformers==4.34.0
+torch==2.2.1
+sentence-transformers==2.5.1

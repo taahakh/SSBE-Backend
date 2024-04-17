@@ -8,6 +8,7 @@
 		}
 	],
 	"settings": {
-		"liveServer.settings.multiRootWorkspaceName": "SSBE-Extension"
+		"liveServer.settings.multiRootWorkspaceName": "SSBE-Extension",
+		"git.ignoreLimitWarning": true
 	}
 }

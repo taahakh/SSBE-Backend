@@ -42,7 +42,7 @@ class ServiceManager:
     
     def reductor(self, text, r=0.5):
         """
-        Reduces the given text using the reductor model.
+        Reduces the given text using the reductor (BERT Extractive) model.
 
         Parameters:
         - text (str): The text to be reduced.
