@@ -4,7 +4,8 @@ from database_models import db, User
 from summarisationmanager import SummarisationManager
 from model_interface import TextType
 import servicemanager, model_interface
-import os, json
+import os, json, time
+from functools import wraps
 
 EXAMPLE_TEXT = """
 Ancient Egyptian literature was written with the Egyptian language from ancient Egypt's pharaonic period until the end of Roman domination. It represents the oldest corpus of Egyptian literature. Along with Sumerian literature, it is considered the world's earliest literature.[1]
@@ -43,26 +44,45 @@ EXAMPLE_HTML = """
 
 """
 
+# Decorator to measure the time taken for a function to execute
+def measure_time(max_time):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            start_time = time.time()
+            result = func(*args, **kwargs)
+            end_time = time.time()
+            execution_time = end_time - start_time
+            print(f"Execution time for {func.__name__}: {execution_time} seconds")
+            if execution_time > max_time:
+                raise AssertionError(f"Execution time for {func.__name__} exceeded {max_time} seconds")
+            return result
+        return wrapper
+    return decorator
+
 class TestApp(unittest.TestCase):
 
+    # Setup the test environment, create a test user
     def setUp(self):
         self.app = app.test_client()
         self.user = User(username='test_user', password='test_password', api_key='TOKEN')
         with app.app_context():
-            # db.create_all()
             db.session.add(self.user)
             db.session.commit()
     
+    # Tear down the test environment, delete the test user
     def tearDown(self):
         with app.app_context():
             db.session.delete(self.user)
             db.session.commit()
 
+    @measure_time(1)
     def req_error_block(self, response):
         data = response.get_json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data['state'], 'BAD')
     
+    @measure_time(1)
     def test_login_route(self):
         response = self.app.post('/auth/login', json={"username": "test_user", "password": "test_password"})
         data = response.get_json()
@@ -94,7 +114,7 @@ class TestApp(unittest.TestCase):
         # Test with no password and missing username entry
         self.req_error_block(self.app.post('/auth/login', json={"password" : ""}))
 
-    
+    @measure_time(1)
     def test_signup_route(self):
         # create a new user
         with app.app_context():
@@ -134,18 +154,16 @@ class TestApp(unittest.TestCase):
         # Test with no password and missing username entry
         self.req_error_block(self.app.post('/auth/signup', json={"password" : ""}))
     
+    @measure_time(1)
     def test_unauthorised_sumcustomisationn_route(self):
-        print("HERE")
         response = self.app.get('/jsonfile/sum_customisation')
         data = response.get_json()
         self.assertEqual(response.status_code, 401)
 
+    @measure_time(1)
     def test_unauthorised_summarise_route(self):
-        print("HERE2")
         response = self.app.post('/servicemanager/summarise')
-        print(response)
         data = response.get_json()
-        print(data)
         self.assertEqual(response.status_code, 401)
 
     # Must have bartlargecnn, sbert, t5medicalsummarisation in model list WITH THE DEFAULT CONFIGURATION
@@ -160,10 +178,7 @@ class TestApp(unittest.TestCase):
         data = response.get_json()
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(data)
-        self.assertEqual(len(data['data']), 3)
-        # self.assertIsNotNone(data['data']['BartLargeCNN'])
-        # self.assertIsNotNone(data['data']['SBERT'])
-        # self.assertIsNotNone(data['data']['T5MedicalSummarisation'])
+        self.assertEqual(len(data['data']), 3) # Checking the data within the JSON file are done in different test
     
     # No test needed, program will terminate given the set conditions within the function
     # Tests SummarisationManager: load_resources(self, src_path) -> bool
@@ -194,7 +209,7 @@ class TestApp(unittest.TestCase):
         self.assertFalse(state)
         self.assertIsNone(md)
 
-    
+    # Test the model list with a custom model list
     def test_nondefault_model_list(self):
         with open('model_list_TEST.txt', 'w') as file:
             file.write('bartlargecnn\n')
@@ -209,10 +224,11 @@ class TestApp(unittest.TestCase):
         self.assertEqual(ml.minimum_summary_length, 60)
         self.assertEqual(ml.maximum_summary_length, 512)
         self.assertEqual(ml.summary_type.value, 'Abstractive')
-        self.assertEqual(ml.text_type, [TextType.GENERAL, TextType.NEWS, TextType.FINANCIAL, TextType.MEDICAL, TextType.SCIENTIFIC])
+        self.assertEqual(ml.text_type, [TextType.GENERAL, TextType.NEWS, TextType.FINANCIAL, TextType.MEDICAL])
 
         os.remove('model_list_TEST.txt')
     
+    # Check if the model description JSON is created correctly
     def test_check_model_desciption_json_creation(self):
         with open('model_list_TEST.txt', 'w') as file:
             file.write('bartlargecnn\n')
@@ -234,7 +250,7 @@ class TestApp(unittest.TestCase):
             self.assertIsNotNone(md['summary-length']['max'])
 
             self.assertEqual(md['model-name'], 'BartLargeCNN')
-            self.assertEqual(md['text-type'], ['General', 'News', 'News', 'Medical', 'Scientific'])
+            self.assertEqual(md['text-type'], ['General', 'News', 'Financial', 'Medical'])
             self.assertEqual(md['summary-type'], 'ab')
             self.assertEqual(md['description'], 'Good for all types of text')
             self.assertEqual(md['summary-length']['min'], 60)
@@ -255,6 +271,8 @@ class TestApp(unittest.TestCase):
             response = self.app.post('/servicemanager/summarise', headers=headers, json=json)
         
         self.assertEqual(response.status_code, 400)
+        data = response.get_json()
+        self.assertIsNotNone(data['message'])
     
     def test_invalid_request_summarisation(self):
         custom_headers = {'Authorization': 'Bearer '+self.get_test_user_api_key(), 'Content-Type': 'application/json'}
@@ -335,7 +353,6 @@ class TestApp(unittest.TestCase):
     def test_is_model_abstractive(self):
         sm = SummarisationManager()
         self.assertIsInstance(sm.is_model_abstractive("BartLargeCNN"), model_interface.ModelInterface)
-        # self.assertTrue(sm.is_model_abstractive("BartLargeCNN"))
         self.assertIsNone(sm.is_model_abstractive("SBERT"))
         self.assertIsInstance(sm.is_model_abstractive("T5MedicalSummarisation"), model_interface.ModelInterface)
 
