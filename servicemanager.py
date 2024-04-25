@@ -1,3 +1,6 @@
+# servicemanager.py
+# The ServiceManager class is responsible for managing the summarisation process. It initialises the SummarisationManager and the BERT Summariser. It also contains methods for getting summarisation customisation from a JSON file, fixing escape characters, reducing text using the BERT Extractive model, and starting the summarisation process. The start_summarisation method handles both HTML and non-HTML content and manages different pipelines for abstractive and extractive summaries.
+
 import json
 from summarisationmanager import SummarisationManager
 from summarizer.bert import Summarizer #  BERT Summariser for text reduction

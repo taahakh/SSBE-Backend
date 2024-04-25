@@ -1,3 +1,7 @@
+# model_interface.py
+# Abstract base class for model interfaces.
+# Used to implement different summarisation models.
+
 from enum import Enum
 from abc import ABC, abstractmethod
 

@@ -1,3 +1,6 @@
+# database_models.py
+# Contains the user model for user authentication
+
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 

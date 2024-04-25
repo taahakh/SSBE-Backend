@@ -1,4 +1,60 @@
+# Backend Service
+## Table of Contents
+- [Backend Service](#backend-service)
+  - [Table of Contents](#table-of-contents)
+- [Main - WebServer and API](#main---webserver-and-api)
+  - [API](#api)
+    - [LoginResource](#loginresource)
+      - [Request Body](#request-body)
+      - [Response Body](#response-body)
+    - [SignupResource](#signupresource)
+      - [Request Body](#request-body-1)
+      - [Response Body](#response-body-1)
+    - [JsonFileResource](#jsonfileresource)
+      - [Response Body](#response-body-2)
+    - [ServiceManagerResource](#servicemanagerresource)
+      - [Request Body](#request-body-2)
+      - [Response Body](#response-body-3)
+- [Database Model - User](#database-model---user)
+- [ServiceManager](#servicemanager)
+  - [get\_sum\_customisation(self, location)](#get_sum_customisationself-location)
+  - [fix\_escape\_chars(self, text)](#fix_escape_charsself-text)
+  - [reductor(self, text, r=0.5)](#reductorself-text-r05)
+  - [start\_summarisation(self, data)](#start_summarisationself-data)
+- [SummarisationManager](#summarisationmanager)
+  - [__init__(self, model\_src\_path='model\_list.txt', json\_output\_path='md.json')](#initself-model_src_pathmodel_listtxt-json_output_pathmdjson)
+  - [create\_model\_descriptors(self, output\_path)](#create_model_descriptorsself-output_path)
+  - [load\_resources(self, src\_path) -\> bool](#load_resourcesself-src_path---bool)
+  - [model\_loader(self, model)](#model_loaderself-model)
+  - [is\_model\_abstractive(self, model\_name)](#is_model_abstractiveself-model_name)
+  - [summarise(self, text, model\_name, summary\_length)](#summariseself-text-model_name-summary_length)
+- [SummaryType - ENUM](#summarytype---enum)
+- [TextType - ENUM](#texttype---enum)
+- [ModelInterface - AbstractBaseClass](#modelinterface---abstractbaseclass)
+  - [catch\_exception(func)](#catch_exceptionfunc)
+  - [minimum\_summary\_length(self) -\> int](#minimum_summary_lengthself---int)
+  - [maximum\_summary\_length(self) -\> int](#maximum_summary_lengthself---int)
+  - [summary\_type(self) -\> SummaryType](#summary_typeself---summarytype)
+  - [text\_type(self) -\> List:TextType](#text_typeself---listtexttype)
+  - [model\_name(self) -\> str](#model_nameself---str)
+  - [description(self) -\> str](#descriptionself---str)
+  - [load\_model(self) -\> None](#load_modelself---none)
+  - [summarise(self, text, summary\_length) -\> str](#summariseself-text-summary_length---str)
+  - [unload\_model(self) -\> None](#unload_modelself---none)
+- [ChunkedSummariser](#chunkedsummariser)
+  - [__init__(self, t, m, max\_chunk\_length=512, min\_summary\_length=100, max\_summary\_length=500)](#initself-t-m-max_chunk_length512-min_summary_length100-max_summary_length500)
+  - [tokenize\_input(self, input\_text)](#tokenize_inputself-input_text)
+  - [model\_generate(self, input\_ids)](#model_generateself-input_ids)
+  - [decode\_summary(self, summary\_ids)](#decode_summaryself-summary_ids)
+  - [summarize\_chunked\_text(self, input\_text)](#summarize_chunked_textself-input_text)
+- [How to add new models to the backend service](#how-to-add-new-models-to-the-backend-service)
 # Main - WebServer and API
+WebServer and API for the summarisation backend service. 
+Handles user authentication and summarisation requests through RESTful API.
+Communicates directly with ServiceManager to handle summarisation based requests (e.g. summarise text, get model descriptors).
+
+This component is designed so that it can be extended to handle different requests. Functionality that must occur before or after the summarisation process should be handled here or pointing to different custom components. 
+
 
 ## API
 
@@ -73,10 +129,18 @@ extractedType: string, [html, extracted]
         "data": "...."
     }
 
-# Database Models
-User
+# Database Model - User
+A basic database model for user authentication. Not to be used in production but can be used locally. Implemented as simple as possible for demonstration purposes (showing that it can be used as a stepping stone for an actual online service).
+
+    class User(db.Model):
+        id = db.Column(db.Integer, primary_key=True)
+        username = db.Column(db.String(255), unique=True, nullable=False)
+        password = db.Column(db.String(255), unique=True, nullable=False)
+        api_key = db.Column(db.String(36), unique=True, nullable=False)
 
 # ServiceManager
+Handles summarisation requests and customisation.
+
 ## get_sum_customisation(self, location)
     
  Get summarisation customisation from JSON file.
@@ -110,6 +174,8 @@ Reduces the given text using BERT extractive model.
 ## start_summarisation(self, data)
 Start the summarisation process. Handles html and non-html content and manages different piplines for abstractive / extractive summaries.
 
+This component is designed to be a layer between the API and the summarisation models. Functionality that must occur before or after the summarisation process should be handled here.
+
         Args:
             data (dict): A dictionary containing the input data for summarisation.
 
@@ -122,6 +188,11 @@ Start the summarisation process. Handles html and non-html content and manages d
             None
 
 # SummarisationManager
+
+Carries out summarisation, manages the resources of multiple models and creating model descriptors for use in the extension.
+
+This component is designed to carry out summarisation using different selected models. Summarisation functionailty should be implemented in the models themselves or in this component.
+
 ## __init__(self, model_src_path='model_list.txt', json_output_path='md.json')
 
         Initialises a SummarisationManager object. Stores a list of models and creates a JSON file containing model descriptors.
@@ -199,7 +270,7 @@ Start the summarisation process. Handles html and non-html content and manages d
         SCIENTIFIC (str): Scientific text type.
 
 # ModelInterface - AbstractBaseClass
-Abstract base class for model interfaces.
+Abstract base class for model interfaces. Used to define the interface for summarisation models.
 
 ## catch_exception(func)
 Decorator to catch and handle exceptions when calling the summarise method
@@ -222,7 +293,7 @@ Decorator to catch and handle exceptions when calling the summarise method
     
     Get the type of summary (abstractive or extractive).
 
-## text_type(self) -> list[TextType]
+## text_type(self) -> List:TextType
     @property
     @abstractmethod
     
@@ -310,3 +381,8 @@ Class for summarizing large text by dividing it into chunks.
         Returns:
             str: The aggregated summary of all the chunks.
 
+# How to add new models to the backend service
+
+1. Create a new class (within the models folder) that inherits from the `ModelInterface` abstract base class. This class must be named as "Model"
+2. Implement the required methods in the new class - see the `ModelInterface` class for details
+3. Add the new model to the `model_list.txt` file (the name added must match the file name of the new model class)

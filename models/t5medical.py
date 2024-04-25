@@ -31,7 +31,6 @@ class Model(ModelInterface):
     def maximum_summary_length(self) -> int:
         return 500
 
-    # Abstractive (ab) / Extractive (ex)
     @property
     def summary_type(self) -> SummaryType:
         return SummaryType.ABSTRACTIVE
@@ -40,10 +39,9 @@ class Model(ModelInterface):
     def text_type(self) -> list[TextType]:
         return [TextType.MEDICAL]
 
-    # Little description about the model
     @property
     def description(self) -> str:
-        return "Good for medical scientific texts"
+        return "Good for medical based texts"
 
     @property
     def model_name(self):
@@ -66,10 +64,7 @@ class Model(ModelInterface):
     def summarise(self, text, summary_length):
         print("(T5MedicalSummarisation) Summarising...")
         length = self.maximum_summary_length
-        # if summary_length != "":
-        #     length = int(summary_length)
         chunked_summarizer = CustomCS(t=self.tokenizer, m=self.model, max_chunk_length=512, max_summary_length=length)
         return chunked_summarizer.summarize_chunked_text(text)
-        # return self.pipe(text, min_length=100, max_length=500)[0]['summary_text']
         
 

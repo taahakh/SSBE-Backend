@@ -1,3 +1,8 @@
+# testing.py
+# Unit tests for the application. 
+# Tests the API endpoints, the database, and the summarisation pipeline.
+# Tests functional and non-functional requirements
+
 import unittest
 from main import app
 from database_models import db, User
@@ -15,6 +20,8 @@ Writing in ancient Egypt—both hieroglyphic and hieratic—first appeared in th
 Underground Egyptian tombs built in the desert provide possibly the most protective environment for the preservation of papyrus documents. For example, there are many well-preserved Book of the Dead funerary papyri placed in tombs to act as afterlife guides for the souls of the deceased tomb occupants.[24] However, it was only customary during the late Middle Kingdom and first half of the New Kingdom to place non-religious papyri in burial chambers. Thus, the majority of well-preserved literary papyri are dated to this period.[24]
 """
 
+MASSIVE_TEXT = ''.join([EXAMPLE_TEXT for i in range(10)])
+
 EXAMPLE_HTML = """  
 <!DOCTYPE html>
 <html lang="en">
@@ -22,22 +29,19 @@ EXAMPLE_HTML = """
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <div>
-        <div>
-            <p>
-                Ancient Egyptian literature was written with the Egyptian language from ancient Egypt's pharaonic period until the end of Roman domination. It represents the oldest corpus of Egyptian literature. Along with Sumerian literature, it is considered the world's earliest literature.[1]
-            </p>
-            <p>
-                Writing in ancient Egypt—both hieroglyphic and hieratic—first appeared in the late 4th millennium BC during the late phase of predynastic Egypt. By the Old Kingdom (26th century BC to 22nd century BC), literary works included funerary texts, epistles and letters, hymns and poems, and commemorative autobiographical texts recounting the careers of prominent administrative officials. It was not until the early Middle Kingdom (21st century BC to 17th century BC) that a narrative Egyptian literature was created. This was a "media revolution" which, according to Richard B. Parkinson, was the result of the rise of an intellectual class of scribes, new cultural sensibilities about individuality, unprecedented levels of literacy, and mainstream access to written materials.[2] The creation of literature was thus an elite exercise, monopolized by a scribal class attached to government offices and the royal court of the ruling pharaoh. However, there is no full consensus among modern scholars concerning the dependence of ancient Egyptian literature on the sociopolitical order of the royal courts. 
-            </p>
-            <p>
-                Underground Egyptian tombs built in the desert provide possibly the most protective environment for the preservation of papyrus documents. For example, there are many well-preserved Book of the Dead funerary papyri placed in tombs to act as afterlife guides for the souls of the deceased tomb occupants.[24] However, it was only customary during the late Middle Kingdom and first half of the New Kingdom to place non-religious papyri in burial chambers. Thus, the majority of well-preserved literary papyri are dated to this period.[24]
-            </p>
-        </div>
-    </div>
 </head>
 <body>
-    
+    <div>
+        <p>
+            Ancient Egyptian literature was written with the Egyptian language from ancient Egypt's pharaonic period until the end of Roman domination. It represents the oldest corpus of Egyptian literature. Along with Sumerian literature, it is considered the world's earliest literature.[1]
+        </p>
+        <p>
+            Writing in ancient Egypt—both hieroglyphic and hieratic—first appeared in the late 4th millennium BC during the late phase of predynastic Egypt. By the Old Kingdom (26th century BC to 22nd century BC), literary works included funerary texts, epistles and letters, hymns and poems, and commemorative autobiographical texts recounting the careers of prominent administrative officials. It was not until the early Middle Kingdom (21st century BC to 17th century BC) that a narrative Egyptian literature was created. This was a "media revolution" which, according to Richard B. Parkinson, was the result of the rise of an intellectual class of scribes, new cultural sensibilities about individuality, unprecedented levels of literacy, and mainstream access to written materials.[2] The creation of literature was thus an elite exercise, monopolized by a scribal class attached to government offices and the royal court of the ruling pharaoh. However, there is no full consensus among modern scholars concerning the dependence of ancient Egyptian literature on the sociopolitical order of the royal courts. 
+        </p>
+        <p>
+            Underground Egyptian tombs built in the desert provide possibly the most protective environment for the preservation of papyrus documents. For example, there are many well-preserved Book of the Dead funerary papyri placed in tombs to act as afterlife guides for the souls of the deceased tomb occupants.[24] However, it was only customary during the late Middle Kingdom and first half of the New Kingdom to place non-religious papyri in burial chambers. Thus, the majority of well-preserved literary papyri are dated to this period.[24]
+        </p>
+    </div>
 </body>
 </html>
 
@@ -166,7 +170,7 @@ class TestApp(unittest.TestCase):
         data = response.get_json()
         self.assertEqual(response.status_code, 401)
 
-    # Must have bartlargecnn, sbert, t5medicalsummarisation in model list WITH THE DEFAULT CONFIGURATION
+    # Must have bartlargecnn, bert, t5medicalsummarisation in model list WITH THE DEFAULT CONFIGURATION
     def test_jsonfile_route(self):
         user_response = self.app.post('/auth/login', json={"username": "test_user", "password": "test_password"})
         user_data = user_response.get_json()
@@ -193,7 +197,7 @@ class TestApp(unittest.TestCase):
         self.assertTrue(state)
         self.assertIsNotNone(md)
 
-        state, md = sm.model_loader('SBERT')
+        state, md = sm.model_loader('BERT')
         self.assertTrue(state)
         self.assertIsNotNone(md)
 
@@ -274,6 +278,7 @@ class TestApp(unittest.TestCase):
         data = response.get_json()
         self.assertIsNotNone(data['message'])
     
+    # Test the summarisation route with invalid inputs (incorrect JSON format, missing keys, etc.)
     def test_invalid_request_summarisation(self):
         custom_headers = {'Authorization': 'Bearer '+self.get_test_user_api_key(), 'Content-Type': 'application/json'}
 
@@ -306,7 +311,7 @@ class TestApp(unittest.TestCase):
         # Test with empty extractedType
         self.invalid_request_summarisation_block(custom_headers, {"text" : "test", "customisation" : {}, "extractedType" : ""})
 
-
+    # Test the summarisation route with invalid inputs (bad data, incorrect model, etc.)
     def test_invalid_request_data_summarisation(self):
         custom_headers = {'Authorization': 'Bearer '+self.get_test_user_api_key(), 'Content-Type': 'application/json'}
 
@@ -331,10 +336,17 @@ class TestApp(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNotNone(data['data'])
 
+    # Test the summarisation route with valid inputs
+    # Also tests the chunking of text, making sure it summarises the text for those that go beyond the maximum length
     def test_valid_request_summarisation(self):
 
         # Test with extracted text
         self.valid_request_summarisation_block({"text" : EXAMPLE_TEXT, "customisation" : {"model" : "BartLargeCNN"}, "extractedType" : "extracted"})
+
+        # Test with text that goes beyond the maximum length - using bart with max token length of 1024
+        self.valid_request_summarisation_block({"text" : MASSIVE_TEXT, "customisation" : {"model" : "BartLargeCNN"}, "extractedType" : "extracted"})
+        self.valid_request_summarisation_block({"text" : MASSIVE_TEXT, "customisation" : {"model" : "T5MedicalSummarisation"}, "extractedType" : "extracted"})
+        self.valid_request_summarisation_block({"text" : MASSIVE_TEXT, "customisation" : {"model" : "BERT"}, "extractedType" : "extracted"})
         
         # Test with html
         self.valid_request_summarisation_block({"text" : EXAMPLE_HTML, "customisation" : {"model" : "BartLargeCNN"}, "extractedType" : "html"})
@@ -342,6 +354,65 @@ class TestApp(unittest.TestCase):
         # Test with custom summary length
         self.valid_request_summarisation_block({"text" : EXAMPLE_TEXT, "customisation" : {"model" : "BartLargeCNN", "summary-length" : "50"}, "extractedType" : "extracted"})
     
+    # Test summarise function and check if it reject bad inputs
+    def test_invalid_summarise(self):
+        sm = SummarisationManager()
+
+        state, content = sm.summarise(EXAMPLE_TEXT, "", "")
+        self.assertFalse(state)
+        self.assertIsNone(content)
+
+        # Model does not exist
+        state, content = sm.summarise(EXAMPLE_TEXT, "SDFSDFSDFSD", "")
+        self.assertFalse(state)
+        self.assertIsNone(content)
+
+        # Test model length with extractive model
+        # Abstractive models have been tested in test_valid_request_summarisation and test_invalid_request_data_summarisation
+        state, content = sm.summarise(EXAMPLE_TEXT, "BART", "-0.5")
+        self.assertFalse(state)
+        self.assertIsNone(content)
+
+        state, content = sm.summarise(EXAMPLE_TEXT, "BART", "1.1")
+        self.assertFalse(state)
+        self.assertIsNone(content)
+
+    # Test all the models currently used in the application with valid inputs
+    # Also checks if it reduces text
+    def test_valid_summarise(self):
+        sm = SummarisationManager()
+
+        state, content = sm.summarise(EXAMPLE_TEXT, "BartLargeCNN", "")
+        self.assertTrue(state)
+        self.assertIsNotNone(content)
+        self.assertTrue(len(content) < len(EXAMPLE_TEXT))
+
+        state, content = sm.summarise(EXAMPLE_TEXT, "T5MedicalSummarisation", "")
+        self.assertTrue(state)
+        self.assertIsNotNone(content)
+        self.assertTrue(len(content) < len(EXAMPLE_TEXT))
+
+        state, content = sm.summarise(EXAMPLE_TEXT, "BERT", "")
+        self.assertTrue(state)
+        self.assertIsNotNone(content)
+        self.assertTrue(len(content) < len(EXAMPLE_TEXT))
+
+        state, content = sm.summarise(EXAMPLE_TEXT, "BartLargeCNN", "0.3")
+        self.assertTrue(state)
+        self.assertIsNotNone(content)
+        self.assertTrue(len(content) < len(EXAMPLE_TEXT))
+
+        state, content = sm.summarise(EXAMPLE_TEXT, "T5MedicalSummarisation", "0.3")
+        self.assertTrue(state)
+        self.assertIsNotNone(content)
+        self.assertTrue(len(content) < len(EXAMPLE_TEXT))
+
+        state, content = sm.summarise(EXAMPLE_TEXT, "BERT", "0.3")
+        self.assertTrue(state)
+        self.assertIsNotNone(content)
+        self.assertTrue(len(content) < len(EXAMPLE_TEXT))
+
+    # Test the fix_escape_chars function, making sure it removes escape characters and other unwanted characters
     def test_clean_escape_char(self):
         sm = servicemanager.ServiceManager()
         self.assertEqual(sm.fix_escape_chars("test\\n"), "test")
@@ -353,7 +424,7 @@ class TestApp(unittest.TestCase):
     def test_is_model_abstractive(self):
         sm = SummarisationManager()
         self.assertIsInstance(sm.is_model_abstractive("BartLargeCNN"), model_interface.ModelInterface)
-        self.assertIsNone(sm.is_model_abstractive("SBERT"))
+        self.assertIsNone(sm.is_model_abstractive("BERT"))
         self.assertIsInstance(sm.is_model_abstractive("T5MedicalSummarisation"), model_interface.ModelInterface)
 
 if __name__ == '__main__':

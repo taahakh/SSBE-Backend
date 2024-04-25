@@ -31,33 +31,32 @@ class Model(ModelInterface):
     def defined_model(self):
         return self.model
 
-    # Little description about the model
     @property
     def description(self) -> str:
         return "Good for all texts"
 
     @property
     def model_name(self):
-        return 'SBERT'
+        return 'BERT'
 
     def load_model(self):
         if self.model is None:
-            print("(SBERT) Loading model...")
+            print("(BERT) Loading model...")
             self.model = SBertSummarizer('paraphrase-MiniLM-L6-v2')
-            print("(SBERT) Model loaded")
+            print("(BERT) Model loaded")
 
     def unload_model(self):
-        print("(SBERT) Unloading model...")
+        print("(BERT) Unloading model...")
         self.model = None
-        print("(SBERT) Model unloaded")
+        print("(BERT) Model unloaded")
 
     @ModelInterface.catch_exception
     def summarise(self, text, summary_length):
-        print("(SBERT) Summarising...")
-        print(summary_length)
+        print("(BERT) Summarising...")
         length = self.maximum_summary_length
-        print(summary_length, length)
         if summary_length != "":
             length = float(summary_length)
-        print(summary_length, length)
+            if length < 0.0 or length > 1.0:
+                print('Invalid summary length')
+                return False, None
         return self.model(text, ratio=length, min_length=10, max_length=200)

@@ -20,14 +20,14 @@
       "Medical"
     ],
     "summary-type": "ab",
-    "description": "Good for medical scientific texts",
+    "description": "Good for medical based texts",
     "summary-length": {
       "min": 40,
       "max": 500
     }
   },
   {
-    "model-name": "SBERT",
+    "model-name": "BERT",
     "text-type": [
       "General",
       "News",

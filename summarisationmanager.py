@@ -1,3 +1,8 @@
+# summarisationmanager.py
+# The SummarisationManager class is responsible for managing and running summarisation itself. 
+# It initialises a list of models and creates a JSON file containing model descriptors. 
+# It also contains methods for creating model descriptors, loading resources, loading models, checking if a model is abstractive.
+
 import importlib
 import json
 import os
@@ -149,6 +154,19 @@ class SummarisationManager:
             tuple: A tuple containing a boolean value indicating whether the model was found,
                    and the summarized text if the model was found, otherwise None.
         """
+
+        # print(text)
+
+        if text == "":
+            print("No text provided")
+            return False, None
+        
+        if model_name == "":
+            print("No model provided")
+            return False, None
+        
+        # Summary length is optional, therefore error handling is established in the model implementation
+
         print("Loading Model...")
         exist, model = self.model_loader(model_name)
 

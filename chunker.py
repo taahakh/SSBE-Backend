@@ -1,3 +1,6 @@
+# chunker.py
+# Built to break up large text into smaller chunks for models in order to fit the token limit
+
 class ChunkedSummarizer:
     """
     Class for summarizing large text by dividing it into chunks.

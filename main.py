@@ -1,3 +1,7 @@
+# main.py is the main entry point for the Flask web application.
+# It initialises the Flask app, the RESTful API, the database, and the Service Manager.
+# It also contains the resource endpoints for user authentication, user signup, JSON file operations, and the summarisation pipeline
+
 from flask import Flask, request, render_template, jsonify, current_app
 from flask_restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
@@ -25,8 +29,8 @@ api = Api(app)
 
 # Creating the database
 # db = SQLAlchemy(app)
-# with app.app_context():
-#     db.create_all()
+with app.app_context():
+    db.create_all()
 
 # Initialising the Service Manager
 sm = svm.ServiceManager()
@@ -207,4 +211,4 @@ def index_a():
 #     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
