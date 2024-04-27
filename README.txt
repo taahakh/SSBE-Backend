@@ -19,7 +19,8 @@ e.g cd C:\Users\example\Documents\SSBE-Backend
 To install the requirements, enter the command: python setup.py
 
 NOTE: 
-    - Your use of the "python" command may vary, dependent on installation. e.g. you might have to use command "python3" instead
+    - Your use of the "python" command may vary, dependent on installation. e.g. you might have to use command "python3" instead.
+    - The installation could also take a while to download all the libraries and models. Do not worry, it will finish.
     - If there is errors relating to pip, please go to line 4 of the setup.py file and change comamnd "pip install -r requirements.txt" to "pip3 install -r requirements.txt"
     - If there are any other error, please search online for solution.
 
