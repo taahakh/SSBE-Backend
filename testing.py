@@ -164,13 +164,6 @@ class TestApp(unittest.TestCase):
 
         # Test with no password and missing username entry
         self.req_error_block(self.app.post('/auth/signup', json={"password" : ""}))
-    
-    # Test unauthorised access - get model descriptors
-    @measure_time(1)
-    def test_unauthorised_sumcustomisationn_route(self):
-        response = self.app.get('/jsonfile/sum_customisation')
-        data = response.get_json()
-        self.assertEqual(response.status_code, 401)
 
     # Test unauthorised access - summarise route
     @measure_time(1)
@@ -179,14 +172,24 @@ class TestApp(unittest.TestCase):
         data = response.get_json()
         self.assertEqual(response.status_code, 401)
 
-    # Test the model descriptors route
+    # Test model descriptors route
+    # Test unauthorised access - get model descriptors
+    @measure_time(1)
+    def test_unauthorised_sumcustomisationn_route(self):
+        response = self.app.get('/jsonfile/sum_customisation')
+        data = response.get_json()
+        self.assertEqual(response.status_code, 401)
+
+    # Test the model descriptors route, acutually the resource locator but also testing the model descriptors
     # Must have bartlargecnn, bert, t5medicalsummarisation in model list WITH THE DEFAULT CONFIGURATION
     def test_jsonfile_route(self):
+        # Login first
         user_response = self.app.post('/auth/login', json={"username": "test_user", "password": "test_password"})
         user_data = user_response.get_json()
         self.assertEqual(user_response.status_code, 200)
         self.assertIsNotNone(user_data['api_key'])
 
+        # Testing the model descriptors route
         custom_headers = {'Authorization': 'Bearer '+user_data['api_key'], 'Content-Type': 'application/json'}
         response = self.app.get('/jsonfile/sum_customisation', headers=custom_headers)
         data = response.get_json()

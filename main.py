@@ -132,8 +132,8 @@ class JsonFileResource(Resource):
         if filename == "sum_customisation":
             sum_customisation = sm.get_sum_customisation('md.json')
             return {'data': sum_customisation}
-        return {'json': 'this is get mate'}
-# SORT THE RETURN ABOVE
+        # Return empty data if the filename is invalid
+        return {'data': ''}
 
 # Resource Endpoint for the summarisation pipeline
 class ServiceManagerResource(Resource):
@@ -147,7 +147,7 @@ class ServiceManagerResource(Resource):
             if json_data is None:
                 return {"status": "error", "message": "Invalid request - no JSON data found"}, 400
 
-            result = {"status" : "success"}
+            result = {}
 
             # ENDPOINT for starting summarisation
             if action == 'summarise':
@@ -166,6 +166,7 @@ class ServiceManagerResource(Resource):
                 if not state:
                     return {"status": "error", "message": "Summarisation failed"}, 400
                 
+                result['status'] = "success"
                 result['data'] = output
             
             return result, 200

@@ -43,3 +43,12 @@ Reading the documentation
 --------------------------------
 
 Markdown is required to read the documentation.
+
+
+
+Running the unit and integration tests
+--------------------------------
+
+Run testing.py file within this directory e.g. python testing.py
+
+Do not exit when the testing is running.
