@@ -38,3 +38,8 @@ Although it is to be used locally on users' machines, a login / signup system ha
 
 Username: default
 Password: default
+
+Reading the documentation
+--------------------------------
+
+Markdown is required to read the documentation.

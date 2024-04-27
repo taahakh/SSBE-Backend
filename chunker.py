@@ -1,9 +1,10 @@
 # chunker.py
 # Built to break up large text into smaller chunks for models in order to fit the token limit
+# Used the american spelling of "summarizer" for consistency with the transformers library
 
 class ChunkedSummarizer:
     """
-    Class for summarizing large text by dividing it into chunks.
+    Class for summarising large text by dividing it into chunks.
     """
     def __init__(self, t, m, max_chunk_length=512, min_summary_length=100, max_summary_length=500):
         """

@@ -29,8 +29,8 @@ api = Api(app)
 
 # Creating the database
 # db = SQLAlchemy(app)
-with app.app_context():
-    db.create_all()
+# with app.app_context():
+#     db.create_all()
 
 # Initialising the Service Manager
 sm = svm.ServiceManager()
@@ -184,19 +184,19 @@ api.add_resource(LoginResource, '/auth/login');
 
 # --- Test routes ---
 
-class HelloWorld(Resource):
-    def get(self):
-        return {'hello': 'world'}
+# class HelloWorld(Resource):
+#     def get(self):
+#         return {'hello': 'world'}
 
-api.add_resource(HelloWorld, '/')
+# api.add_resource(HelloWorld, '/')
 
-@app.route('/home')
-def index():
-    return render_template('index.html')
+# @app.route('/home')
+# def index():
+#     return render_template('index.html')
 
-@app.route('/home/a')
-def index_a():
-    return render_template('test.html')
+# @app.route('/home/a')
+# def index_a():
+#     return render_template('test.html')
 
 # @app.route('/home/c/b')
 # def index_c_b():

@@ -12,6 +12,7 @@ import servicemanager, model_interface
 import os, json, time
 from functools import wraps
 
+# To summarise
 EXAMPLE_TEXT = """
 Ancient Egyptian literature was written with the Egyptian language from ancient Egypt's pharaonic period until the end of Roman domination. It represents the oldest corpus of Egyptian literature. Along with Sumerian literature, it is considered the world's earliest literature.[1]
 
@@ -20,8 +21,10 @@ Writing in ancient Egypt—both hieroglyphic and hieratic—first appeared in th
 Underground Egyptian tombs built in the desert provide possibly the most protective environment for the preservation of papyrus documents. For example, there are many well-preserved Book of the Dead funerary papyri placed in tombs to act as afterlife guides for the souls of the deceased tomb occupants.[24] However, it was only customary during the late Middle Kingdom and first half of the New Kingdom to place non-religious papyri in burial chambers. Thus, the majority of well-preserved literary papyri are dated to this period.[24]
 """
 
+# To test summarisation with large text
 MASSIVE_TEXT = ''.join([EXAMPLE_TEXT for i in range(10)])
 
+# To test summarisation with HTML, removing the html content and extracting the key text
 EXAMPLE_HTML = """  
 <!DOCTYPE html>
 <html lang="en">
@@ -64,6 +67,7 @@ def measure_time(max_time):
         return wrapper
     return decorator
 
+# Tests for the application
 class TestApp(unittest.TestCase):
 
     # Setup the test environment, create a test user
@@ -94,6 +98,7 @@ class TestApp(unittest.TestCase):
         self.assertEqual(data['state'], 'GOOD')
         self.assertIsNotNone(data['api_key'])
     
+    # Test the login route with bad inputs
     def test_bad_login_route(self):
 
         # Test with no data (JSON)
@@ -118,6 +123,7 @@ class TestApp(unittest.TestCase):
         # Test with no password and missing username entry
         self.req_error_block(self.app.post('/auth/login', json={"password" : ""}))
 
+    # Test the signup route
     @measure_time(1)
     def test_signup_route(self):
         # create a new user
@@ -133,6 +139,7 @@ class TestApp(unittest.TestCase):
             db.session.delete(user)
             db.session.commit()
     
+    # Test the signup route with bad inputs
     def test_bad_signup_route(self):
         # Test with no data (JSON)
         self.req_error_block(self.app.post('/auth/signup'))
@@ -158,18 +165,21 @@ class TestApp(unittest.TestCase):
         # Test with no password and missing username entry
         self.req_error_block(self.app.post('/auth/signup', json={"password" : ""}))
     
+    # Test unauthorised access - get model descriptors
     @measure_time(1)
     def test_unauthorised_sumcustomisationn_route(self):
         response = self.app.get('/jsonfile/sum_customisation')
         data = response.get_json()
         self.assertEqual(response.status_code, 401)
 
+    # Test unauthorised access - summarise route
     @measure_time(1)
     def test_unauthorised_summarise_route(self):
         response = self.app.post('/servicemanager/summarise')
         data = response.get_json()
         self.assertEqual(response.status_code, 401)
 
+    # Test the model descriptors route
     # Must have bartlargecnn, bert, t5medicalsummarisation in model list WITH THE DEFAULT CONFIGURATION
     def test_jsonfile_route(self):
         user_response = self.app.post('/auth/login', json={"username": "test_user", "password": "test_password"})
@@ -189,6 +199,7 @@ class TestApp(unittest.TestCase):
     # def test_bad_model_list(self):
     #     pass
     
+    # See if the model list is loaded correctly
     def test_model_list(self):
         sm = SummarisationManager()
         self.assertIsNotNone(sm.model_list)
@@ -343,7 +354,7 @@ class TestApp(unittest.TestCase):
         # Test with extracted text
         self.valid_request_summarisation_block({"text" : EXAMPLE_TEXT, "customisation" : {"model" : "BartLargeCNN"}, "extractedType" : "extracted"})
 
-        # Test with text that goes beyond the maximum length - using bart with max token length of 1024
+        # Test with text that goes beyond the maximum length token length of the model 
         self.valid_request_summarisation_block({"text" : MASSIVE_TEXT, "customisation" : {"model" : "BartLargeCNN"}, "extractedType" : "extracted"})
         self.valid_request_summarisation_block({"text" : MASSIVE_TEXT, "customisation" : {"model" : "T5MedicalSummarisation"}, "extractedType" : "extracted"})
         self.valid_request_summarisation_block({"text" : MASSIVE_TEXT, "customisation" : {"model" : "BERT"}, "extractedType" : "extracted"})
@@ -382,31 +393,37 @@ class TestApp(unittest.TestCase):
     def test_valid_summarise(self):
         sm = SummarisationManager()
 
+        # Test BartLargeCNN
         state, content = sm.summarise(EXAMPLE_TEXT, "BartLargeCNN", "")
         self.assertTrue(state)
         self.assertIsNotNone(content)
         self.assertTrue(len(content) < len(EXAMPLE_TEXT))
 
+        # Test T5MedicalSummarisation
         state, content = sm.summarise(EXAMPLE_TEXT, "T5MedicalSummarisation", "")
         self.assertTrue(state)
         self.assertIsNotNone(content)
         self.assertTrue(len(content) < len(EXAMPLE_TEXT))
 
+        # Test BERT
         state, content = sm.summarise(EXAMPLE_TEXT, "BERT", "")
         self.assertTrue(state)
         self.assertIsNotNone(content)
         self.assertTrue(len(content) < len(EXAMPLE_TEXT))
 
+        # Test with custom summary length - BartLargeCNN, 30%
         state, content = sm.summarise(EXAMPLE_TEXT, "BartLargeCNN", "0.3")
         self.assertTrue(state)
         self.assertIsNotNone(content)
         self.assertTrue(len(content) < len(EXAMPLE_TEXT))
 
+        # Test with custom summary length - T5MedicalSummarisation, 30%
         state, content = sm.summarise(EXAMPLE_TEXT, "T5MedicalSummarisation", "0.3")
         self.assertTrue(state)
         self.assertIsNotNone(content)
         self.assertTrue(len(content) < len(EXAMPLE_TEXT))
 
+        # Test with custom summary length - BERT, 30%
         state, content = sm.summarise(EXAMPLE_TEXT, "BERT", "0.3")
         self.assertTrue(state)
         self.assertIsNotNone(content)

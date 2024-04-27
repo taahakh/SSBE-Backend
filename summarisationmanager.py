@@ -155,8 +155,6 @@ class SummarisationManager:
                    and the summarized text if the model was found, otherwise None.
         """
 
-        # print(text)
-
         if text == "":
             print("No text provided")
             return False, None
