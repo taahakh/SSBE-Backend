@@ -33,6 +33,8 @@ e.g cd C:\Users\example\Documents\SSBE-Backend
 
 To run the service, enter: python main.py
 
+NOTE: When running for the first time, there might be some more downloading going on to install all of the requirements
+
 As it loads, a URL link is shown which will allow you to connect the extension to the service. There is quite a bit of text printed on the screen so you will be able to find it by scrolling up.
 
 The default host url will most likely be: http://127.0.0.1:5000
